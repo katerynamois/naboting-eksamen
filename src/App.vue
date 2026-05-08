@@ -426,14 +426,14 @@ export default {
     <v-navigation-drawer v-model="drawer" location="right" temporary width="280">
       <v-list class="pa-0">
         <template v-if="profileCreated">
-          <v-list-item class="menu-item" @click="goToProfileEdit">Min profil</v-list-item>
-          <v-list-item class="menu-item" @click="goToPageOne">Opret genstand</v-list-item>
-          <v-list-item class="menu-item" @click="goToItems">Mine genstande</v-list-item>
+          <v-list-item class="menu-item" :to="'/profil'">Min profil</v-list-item>
+          <v-list-item class="menu-item" :to="'/opret'">Opret genstand</v-list-item>
+          <v-list-item class="menu-item" :to="'/genstande'">Mine genstande</v-list-item>
           <v-list-item class="menu-item" @click="logout">Log ud</v-list-item>
         </template>
 
         <template v-else>
-          <v-list-item class="menu-item" @click="goToRegisterProfile">Opret profil</v-list-item>
+          <v-list-item class="menu-item" :to="'/opret-profil'">Opret profil</v-list-item>
           <v-list-item class="menu-item" @click="openLogin">Log ind</v-list-item>
         </template>
       </v-list>
