@@ -13,14 +13,19 @@ import { registerPlugins } from '@/plugins'
 // Components
 import App from './App.vue'
 
+// Router
+import router from './router'
+
 // Styles
 import 'unfonts.css'
 
 // Design system CSS variabler
 import './styles/settings.scss'
+import router from './router'
 
 const app = createApp(App)
 
 registerPlugins(app)
+app.use(router)
 
 app.mount('#app')
