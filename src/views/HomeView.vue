@@ -1,7 +1,9 @@
 <script>
+import Home from '@/components/Home.vue'
 export default {
   name: '',
   components: {
+    Home
   },
   data() {
     return {
@@ -21,7 +23,7 @@ export default {
 </script>
 
 <template>
-    <h1>Velkommen til Naboting </h1>
+    <Home />
 </template>
 
 <style scoped>

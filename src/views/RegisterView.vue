@@ -1,7 +1,9 @@
 <script>
+import RegisterProfile from '@/components/RegisterProfile.vue'
 export default {
   name: '',
   components: {
+    RegisterProfile
   },
   data() {
     return {
@@ -21,7 +23,7 @@ export default {
 </script>
 
 <template>
-    <h1>Velkommen til din profil </h1>
+    <RegisterProfile />
 </template>
 
 <style scoped>

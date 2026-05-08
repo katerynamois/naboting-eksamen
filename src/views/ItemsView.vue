@@ -1,7 +1,9 @@
 <script>
+import GenstandPage from '@/components/Genstand/GenstandPage.vue'
 export default {
   name: '',
   components: {
+    GenstandPage
   },
   data() {
     return {
@@ -21,7 +23,7 @@ export default {
 </script>
 
 <template>
-    <h1>Velkommen til din profil </h1>
+    <GenstandPage />
 </template>
 
 <style scoped>

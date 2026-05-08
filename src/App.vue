@@ -459,62 +459,7 @@ export default {
 
     <v-main>
       <!-- Page routing — currentPage controls which component is rendered -->
-      <Home
-        v-if="currentPage === 'home'"
-        @go-to-profile="goToRegisterProfile"
-        @show-login="openLogin"
-      />
-
-      <RegisterProfile
-        v-if="currentPage === 'registerProfile'"
-        @show-login="openLogin"
-        @profile-created="goToProfile"
-        @go-back="goHome"
-      />
-
-      <Profile
-        v-if="currentPage === 'profile'"
-        :profile-data="profileData"
-        :edit-request="profileEditRequest"
-        :view-request="profileViewRequest"
-        :welcome-request="profileWelcomeRequest"
-        @update-profile="handleUpdateProfile"
-        @go-to-page-one="goToPageOne"
-        @go-to-items="goToItems"
-      />
-
-      <PageOne
-        v-if="currentPage === 'pageOne'"
-        :currentStep="currentStep"
-        @go-to-add-details="goToAddDetails"
-        @go-back="goBackFromPageOne"
-      />
-
-      <AddDetails
-        v-if="currentPage === 'addDetails'"
-        :currentStep="currentStep"
-        @go-to-home="goHome"
-        @go-to-page-one="goToPageOne"
-        @save-details="handleSaveDetails"
-        @go-to-confirm-item="goToConfirmItem"
-      />
-
-      <ConfirmItemScreen
-        v-if="currentPage === 'confirmItem'"
-        :currentStep="currentStep"
-        :itemData="{ ...pageOneData, ...addDetailsData }"
-        @goBack="goBackFromConfirm"
-        @go-to-genstand-page="goToGenstandPage"
-      />
-
-      <GenstandPage
-        v-if="currentPage === 'genstandPage'"
-        :items="items"
-        @go-to-page-one="goToPageOne"
-        @update-status="handleUpdateStatus"
-        @delete-item="handleDeleteItem"
-        @edit-item="handleEditItem"
-      />
+      <RouterView />
 
       <LoginModal
         v-if="showLogin"

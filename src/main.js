@@ -21,7 +21,6 @@ import 'unfonts.css'
 
 // Design system CSS variabler
 import './styles/settings.scss'
-import router from './router'
 
 const app = createApp(App)
 
