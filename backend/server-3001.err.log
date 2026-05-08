@@ -1,0 +1,17 @@
+Error: Access denied for user 'root'@'localhost' (using password: NO)
+    at PromisePool.query (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at Object.findAll (file:///C:/Users/kater/Desktop/Web%20udvikling/naboting/backend/models/item.model.js:42:29)
+    at getItems (file:///C:/Users/kater/Desktop/Web%20udvikling/naboting/backend/controllers/item.controller.js:5:30)
+    at Layer.handle [as handle_request] (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\kater\Desktop\Web udvikling\naboting\node_modules\express\lib\router\index.js:280:10) {
+  code: 'ER_ACCESS_DENIED_ERROR',
+  errno: 1045,
+  sql: undefined,
+  sqlState: '28000',
+  sqlMessage: "Access denied for user 'root'@'localhost' (using password: NO)"
+}
