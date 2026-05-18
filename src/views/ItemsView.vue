@@ -1,7 +1,7 @@
 <script>
 import GenstandPage from '@/components/Genstand/GenstandPage.vue'
 
-const API_BASE_URL = 'http://localhost:3001/api'
+const API_BASE_URL = 'http://localhost:3002/api'
 
 function toApiStatus(status) {
   if (status === 'Tilgængelig' || status === 'available') return 'available'

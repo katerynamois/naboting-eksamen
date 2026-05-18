@@ -9,6 +9,15 @@ export default {
     return {
       drawer: false,
       showLogin: false,
+      loggedIn: false,
+    }
+  },
+  mounted() {
+    this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
+  },
+  watch: {
+    drawer(val) {
+      if (val) this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
     }
   },
   methods: {
@@ -22,14 +31,10 @@ export default {
     logout() {
       this.showLogin = false
       this.drawer = false
+      this.loggedIn = false
       localStorage.removeItem("nabotingSession")
       this.$router.push('/')
     },
-  },
-  computed: {
-    isLoggedIn() {
-      return Boolean(localStorage.getItem("nabotingSession"))
-    }
   },
 };
 </script>
@@ -47,7 +52,7 @@ export default {
 
     <v-navigation-drawer v-model="drawer" location="right" temporary width="280">
       <v-list class="pa-0">
-  <template v-if="isLoggedIn">
+  <template v-if="loggedIn">
     <v-list-item class="menu-item" to="/profil">Min profil</v-list-item>
     <v-list-item class="menu-item" to="/opret-genstand">Opret genstand</v-list-item>
     <v-list-item class="menu-item" to="/genstande">Mine genstande</v-list-item>

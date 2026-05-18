@@ -3,7 +3,7 @@ import PageOne from '@/components/PageOne.vue'
 import AddDetails from '@/components/AddDetails.vue'
 import ConfirmItemScreen from '@/components/ConfirmItemScreen.vue'
 
-const API_BASE_URL = 'http://localhost:3001/api'
+const API_BASE_URL = 'http://localhost:3002/api'
 
 export default {
   components: { PageOne, AddDetails, ConfirmItemScreen },
