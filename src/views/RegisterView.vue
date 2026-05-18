@@ -4,7 +4,7 @@ export default {
   components: { RegisterProfile },
   methods: {
     handleProfileCreated() {
-      this.$router.push('/profil')
+      this.$router.push('/profil?welcome=true')
     },
     handleGoBack() {
       this.$router.push('/')

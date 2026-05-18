@@ -90,6 +90,7 @@ export default {
     },
     showTemporaryWelcome() {
       window.clearTimeout(this.welcomeTimer);
+      this.profileMessage = "Velkommen til Naboting! Din profil er oprettet.";
     },
     startProfileEdit() {
       window.clearTimeout(this.welcomeTimer);

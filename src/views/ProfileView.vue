@@ -1,30 +1,27 @@
 <script>
 import Profile from '@/components/Profile.vue'
 export default {
-  name: '',
-  components: {
-    Profile 
-  },
-  data() {
-    return {
+  components: { Profile },
+  computed: {
+    welcomeRequest() {
+      return this.$route.query.welcome === 'true' ? 1 : 0
     }
   },
-  props: {
-  },
-  computed: {
-  },
   methods: {
-  },
-  watch: {
-  },
-  emits: [
-  ]
+    handleGoToPageOne() {
+      this.$router.push('/opret-genstand')
+    },
+    handleGoToItems() {
+      this.$router.push('/genstande')
+    }
+  }
 }
 </script>
 
 <template>
-    <Profile />
+  <Profile
+    :welcomeRequest="welcomeRequest"
+    @go-to-page-one="handleGoToPageOne"
+    @go-to-items="handleGoToItems"
+  />
 </template>
-
-<style scoped>
-</style>
