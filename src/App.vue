@@ -26,6 +26,11 @@ export default {
       this.$router.push('/')
     },
   },
+  computed: {
+    isLoggedIn() {
+      return Boolean(localStorage.getItem("nabotingSession"))
+    }
+  },
 };
 </script>
 
@@ -42,19 +47,23 @@ export default {
 
     <v-navigation-drawer v-model="drawer" location="right" temporary width="280">
       <v-list class="pa-0">
-        <v-list-item class="menu-item" to="/profil">Min profil</v-list-item>
-        <v-list-item class="menu-item" to="/opret-genstand">Opret genstand</v-list-item>
-        <v-list-item class="menu-item" to="/genstande">Mine genstande</v-list-item>
-        <v-list-item class="menu-item" to="/indbakke">Indbakke</v-list-item>
-        <v-list-item class="menu-item" @click="logout">Log ud</v-list-item>
-      </v-list>
+  <template v-if="isLoggedIn">
+    <v-list-item class="menu-item" to="/profil">Min profil</v-list-item>
+    <v-list-item class="menu-item" to="/opret-genstand">Opret genstand</v-list-item>
+    <v-list-item class="menu-item" to="/genstande">Mine genstande</v-list-item>
+    <v-list-item class="menu-item" to="/indbakke">Indbakke</v-list-item>
+    <v-list-item class="menu-item" @click="logout">Log ud</v-list-item>
+  </template>
+
+  <template v-else>
+    <v-list-item class="menu-item" to="/opret-profil">Opret profil</v-list-item>
+    <v-list-item class="menu-item" to="/login">Log ind</v-list-item>
+  </template>
+</v-list>
 
       <v-divider />
 
-      <v-list class="pa-0">
-        <v-list-item class="menu-item" @click="openLogin">Log ind</v-list-item>
-      </v-list>
-
+      
       <template #append>
         <div class="support-box ma-4">
           <v-icon class="mr-3 support-icon">mdi-send-outline</v-icon>
