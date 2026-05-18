@@ -50,6 +50,7 @@ export default {
       },
       profileMessage: "",
       profileError: "",
+      showWelcomeSnackbar: false,
     };
   },
   computed: {
@@ -90,7 +91,7 @@ export default {
     },
     showTemporaryWelcome() {
       window.clearTimeout(this.welcomeTimer);
-      this.profileMessage = "Velkommen til Naboting! Din profil er oprettet.";
+      this.showWelcomeSnackbar = true;
     },
     startProfileEdit() {
       window.clearTimeout(this.welcomeTimer);
@@ -373,7 +374,18 @@ export default {
         </div>
       </section>
 
-      <p v-if="profileMessage" class="profile-message">{{ profileMessage }}</p>
+      <p v-if="profileMessage && !showWelcomeSnackbar" class="profile-message">{{ profileMessage }}</p>
+
+      <v-snackbar
+        v-model="showWelcomeSnackbar"
+        :timeout="2000"
+        color="primary"
+        location="top"
+        rounded="lg"
+        elevation="4"
+      >
+        Velkommen til Naboting! Din profil er oprettet.
+      </v-snackbar>
 
       <section v-if="!isEditingProfile" class="profile-actions" aria-label="Profil handlinger">
         <img
