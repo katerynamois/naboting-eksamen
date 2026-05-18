@@ -1,30 +1,21 @@
 <script>
 import Home from '@/components/Home.vue'
 export default {
-  name: '',
-  components: {
-    Home
-  },
-  data() {
-    return {
-    }
-  },
-  props: {
-  },
-  computed: {
-  },
+  components: { Home },
   methods: {
-  },
-  watch: {
-  },
-  emits: [
-  ]
+    handleGoToProfile() {
+      this.$router.push('/opret-profil')
+    },
+    handleShowLogin() {
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 
 <template>
-    <Home />
+  <Home
+    @go-to-profile="handleGoToProfile"
+    @show-login="handleShowLogin"
+  />
 </template>
-
-<style scoped>
-</style>

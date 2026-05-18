@@ -1,30 +1,25 @@
 <script>
 import RegisterProfile from '@/components/RegisterProfile.vue'
 export default {
-  name: '',
-  components: {
-    RegisterProfile
-  },
-  data() {
-    return {
-    }
-  },
-  props: {
-  },
-  computed: {
-  },
+  components: { RegisterProfile },
   methods: {
-  },
-  watch: {
-  },
-  emits: [
-  ]
+    handleProfileCreated() {
+      this.$router.push('/profil')
+    },
+    handleGoBack() {
+      this.$router.push('/')
+    },
+    handleShowLogin() {
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 
 <template>
-    <RegisterProfile />
+  <RegisterProfile
+    @profile-created="handleProfileCreated"
+    @go-back="handleGoBack"
+    @show-login="handleShowLogin"
+  />
 </template>
-
-<style scoped>
-</style>
