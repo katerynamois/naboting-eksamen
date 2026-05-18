@@ -14,11 +14,15 @@ export default {
   },
   mounted() {
     this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
+    window.addEventListener("session-changed", this.refreshSession)
+  },
+  beforeUnmount() {
+    window.removeEventListener("session-changed", this.refreshSession)
   },
   watch: {
     drawer(val) {
-      if (val) this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
-    }
+      if (val) this.refreshSession()
+    },
   },
   methods: {
     openLogin() {
@@ -26,6 +30,14 @@ export default {
       this.drawer = false
     },
     closeLogin() {
+      this.showLogin = false
+    },
+    refreshSession() {
+      this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
+    },
+    handleLogin() {
+      localStorage.setItem("nabotingSession", "true")
+      this.loggedIn = true
       this.showLogin = false
     },
     logout() {
@@ -83,7 +95,7 @@ export default {
       <LoginModal
         v-if="showLogin"
         @close="closeLogin"
-        @login="closeLogin"
+        @login="handleLogin"
       />
     </v-main>
 

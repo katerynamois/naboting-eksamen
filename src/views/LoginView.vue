@@ -7,6 +7,8 @@ export default {
       this.$router.push('/')
     },
     handleLogin() {
+      localStorage.setItem("nabotingSession", "true")
+      window.dispatchEvent(new Event("session-changed"))
       this.$router.push('/profil')
     }
   }
