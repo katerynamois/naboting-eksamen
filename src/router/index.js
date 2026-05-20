@@ -7,6 +7,7 @@ const routes = [
   { path: '/opret-profil', component: () => import('../views/RegisterView.vue') },
   { path: '/opret-genstand', component: () => import('../views/ItemCreateView.vue') },
   { path: '/login', component: () => import('../views/LoginView.vue') },
+  { path: '/om-naboting', component: () => import('../views/AboutView.vue') },
   { path: '/laan', component: () => import('../views/LoanRequestView.vue') },
   { path: '/indbakke', component: () => import('../views/LoanInboxView.vue') },
 ]

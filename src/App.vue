@@ -35,8 +35,8 @@ export default {
     refreshSession() {
       this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
     },
-    handleLogin() {
-      localStorage.setItem("nabotingSession", "true")
+    handleLogin(user) {
+      localStorage.setItem("nabotingSession", JSON.stringify({ userId: user.user_id, firstName: user.first_name }))
       this.loggedIn = true
       this.showLogin = false
     },
@@ -73,8 +73,14 @@ export default {
   </template>
 
   <template v-else>
-    <v-list-item class="menu-item" to="/opret-profil">Opret profil</v-list-item>
+    <v-list-item class="menu-item" to="/opret-profil">Opret dig</v-list-item>
     <v-list-item class="menu-item" to="/login">Log ind</v-list-item>
+    <v-divider class="my-2" />
+    <v-list-item class="menu-item" to="/om-naboting">Om Naboting</v-list-item>
+    <v-list-item class="menu-item">Sådan virker det</v-list-item>
+    <v-list-item class="menu-item">FAQ</v-list-item>
+    <v-list-item class="menu-item">Cookiepolitik</v-list-item>
+    <v-list-item class="menu-item">Brugervilkår</v-list-item>
   </template>
 </v-list>
 

@@ -3,14 +3,15 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import userRoutes from "./routes/user.routes.js";
-import itemRoutes from "./routes/item.routes.js";
-import itemImageRoutes from "./routes/itemImage.routes.js";
-import accessoryRoutes from "./routes/accessory.routes.js";
-import loanRoutes from "./routes/loan.routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
+
+const userRoutes = (await import("./routes/user.routes.js")).default;
+const itemRoutes = (await import("./routes/item.routes.js")).default;
+const itemImageRoutes = (await import("./routes/itemImage.routes.js")).default;
+const accessoryRoutes = (await import("./routes/accessory.routes.js")).default;
+const loanRoutes = (await import("./routes/loan.routes.js")).default;
 
 const app = express();
 const port = process.env.API_PORT || 3001;

@@ -12,6 +12,11 @@ async function findById(id) {
   return rows[0] || null;
 }
 
+async function findByEmail(email) {
+  const [rows] = await pool.execute(`SELECT * FROM ${table} WHERE email = ?`, [email]);
+  return rows[0] || null;
+}
+
 async function create(user) {
   const [result] = await pool.execute(
     `INSERT INTO ${table}
@@ -58,6 +63,7 @@ async function remove(id) {
 export default {
   findAll,
   findById,
+  findByEmail,
   create,
   update,
   remove,

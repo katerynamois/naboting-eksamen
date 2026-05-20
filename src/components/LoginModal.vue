@@ -11,16 +11,27 @@ export default {
     };
   },
   methods: {
-    submitLogin() {
+    async submitLogin() {
       if (!this.email.trim() || !this.password.trim()) {
         this.loginError = "Udfyld email og password.";
         return;
       }
       this.loginError = "";
-      this.$emit("login", {
-        email: this.email,
-        password: this.password,
-      });
+      try {
+        const res = await fetch("http://localhost:3001/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: this.email, password: this.password }),
+        });
+        if (!res.ok) {
+          this.loginError = "Forkert email eller password.";
+          return;
+        }
+        const user = await res.json();
+        this.$emit("login", user);
+      } catch {
+        this.loginError = "Kunne ikke forbinde til serveren.";
+      }
     },
     goToLogin() {
       this.mode = "login";

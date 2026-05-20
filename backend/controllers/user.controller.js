@@ -1,5 +1,24 @@
 import User from "../models/user.model.js";
 
+export async function loginUser(req, res, next) {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findByEmail(email);
+    if (!user || user.password_hash !== password) {
+      return res.status(401).json({ message: "Forkert email eller password" });
+    }
+
+    const { password_hash, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function getUsers(req, res, next) {
   try {
     const users = await User.findAll();
