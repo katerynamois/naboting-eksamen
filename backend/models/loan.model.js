@@ -18,6 +18,21 @@ async function findByBorrowerId(userId) {
   return rows;
 }
 
+async function findByOwnerId(userId) {
+  const [rows] = await pool.execute(
+    `SELECT loans.*, items.title AS item_title,
+            users.first_name AS borrower_first_name,
+            users.last_name AS borrower_last_name
+     FROM loans
+     JOIN items ON loans.item_id = items.item_id
+     JOIN users ON loans.borrower_id = users.user_id
+     WHERE items.owner_id = ?
+     ORDER BY loans.loan_id DESC`,
+    [userId],
+  );
+  return rows;
+}
+
 async function create(loan) {
   const [result] = await pool.execute(
     `INSERT INTO loans (item_id, borrower_id, start_date, end_date, message, status)
@@ -63,6 +78,7 @@ export default {
   findAll,
   findById,
   findByBorrowerId,
+  findByOwnerId,
   create,
   update,
   remove,

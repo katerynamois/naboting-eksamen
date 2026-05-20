@@ -32,6 +32,15 @@ export async function getLoansByBorrowerId(req, res, next) {
   }
 }
 
+export async function getLoansByOwnerId(req, res, next) {
+  try {
+    const loans = await Loan.findByOwnerId(req.params.userId);
+    res.json(loans);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function createLoan(req, res, next) {
   try {
     if (!req.body.item_id || !req.body.borrower_id) {
