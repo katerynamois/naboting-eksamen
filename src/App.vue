@@ -57,6 +57,7 @@ export default {
     <v-app-bar flat class="naboting-bar">
       <RouterLink to="/" class="naboting-logo">NABOTING</RouterLink>
       <v-spacer />
+      <RouterLink to="/find-genstande" class="naboting-browse-link">Find genstande</RouterLink>
       <v-btn icon variant="text" class="naboting-menu-icon" @click="drawer = true">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
@@ -66,6 +67,7 @@ export default {
       <v-list class="pa-0">
   <template v-if="loggedIn">
     <v-list-item class="menu-item" to="/profil">Min profil</v-list-item>
+    <v-list-item class="menu-item" to="/find-genstande">Find genstande</v-list-item>
     <v-list-item class="menu-item" to="/opret-genstand">Opret genstand</v-list-item>
     <v-list-item class="menu-item" to="/genstande">Mine genstande</v-list-item>
     <v-list-item class="menu-item" to="/indbakke">Indbakke</v-list-item>
@@ -73,6 +75,7 @@ export default {
   </template>
 
   <template v-else>
+    <v-list-item class="menu-item" to="/find-genstande">Find genstande</v-list-item>
     <v-list-item class="menu-item" to="/opret-profil">Opret dig</v-list-item>
     <v-list-item class="menu-item" to="/login">Log ind</v-list-item>
     <v-divider class="my-2" />
@@ -122,6 +125,19 @@ export default {
   cursor: pointer;
   user-select: none;
   text-decoration: none;
+}
+
+.naboting-browse-link {
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-decoration: none;
+  padding: 6px 14px;
+  background: var(--color-surface);
+  border-radius: var(--radius-full);
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
 .naboting-menu-icon {

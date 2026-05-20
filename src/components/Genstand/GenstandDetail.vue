@@ -79,7 +79,11 @@ export default {
         user: {
             type: Object,
             default: null
-        }
+        },
+        isOwner: {
+            type: Boolean,
+            default: true,
+        },
     },
     computed: {
         statusClass() {
@@ -188,6 +192,7 @@ export default {
                 <p class="detail-owner-date">{{ createdAtText }}</p>
             </div>
             <button
+                v-if="!isOwner"
                 class="loan-button"
                 type="button"
                 @click="$router.push('/laan/' + id)"
@@ -195,7 +200,7 @@ export default {
                 Lån denne genstand
             </button>
 
-            <div class="detail-status-actions">
+            <div v-if="isOwner" class="detail-status-actions">
                 <button
                     v-for="option in ['Tilgængelig', 'Udlånt', 'Inaktiv']"
                     :key="option"
@@ -208,6 +213,7 @@ export default {
                 </button>
             </div>
             <button
+                v-if="isOwner"
                 class="edit-button"
                 type="button"
                 @click="showEditModal = true"
@@ -215,6 +221,7 @@ export default {
                 Rediger genstand
             </button>
             <button
+                v-if="isOwner"
                 class="delete-item-button"
                 type="button"
                 @click="deleteItem"

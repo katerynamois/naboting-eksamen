@@ -9,6 +9,7 @@ const routes = [
   { path: '/opret-genstand', component: () => import('../views/ItemCreateView.vue'), meta: { requiresAuth: true } },
   { path: '/login', component: () => import('../views/LoginView.vue') },
   { path: '/om-naboting', component: () => import('../views/AboutView.vue') },
+  { path: '/find-genstande', component: () => import('../views/BrowseView.vue') },
   { path: '/laan/:itemId', component: () => import('../views/LoanRequestView.vue'), meta: { requiresAuth: true } },
   { path: '/indbakke', component: () => import('../views/LoanInboxView.vue'), meta: { requiresAuth: true } },
 ]
