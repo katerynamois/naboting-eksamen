@@ -4,6 +4,18 @@ import { getUserId } from '@/utils/session.js'
 
 const API_BASE_URL = 'http://localhost:3002/api'
 
+function getImageUrl(url) {
+  if (url && url.startsWith('/uploads')) return `http://localhost:3002${url}`
+  return 'https://placehold.co/300x200?text=Ingen+billede'
+}
+
+function toDisplayStatus(status) {
+  if (status === 'available') return 'Tilgængelig'
+  if (status === 'loaned') return 'Udlånt'
+  if (status === 'inactive') return 'Inaktiv'
+  return status
+}
+
 function toApiStatus(status) {
   if (status === 'Tilgængelig' || status === 'available') return 'available'
   if (status === 'Udlånt' || status === 'loaned') return 'loaned'
@@ -34,8 +46,8 @@ export default {
           title: item.title,
           category: item.category,
           brand: item.brand,
-          status: item.status,
-          images: [item.image_url || 'https://placehold.co/64x64'],
+          status: toDisplayStatus(item.status),
+          images: [getImageUrl(item.image_url)],
           condition: item.item_condition,
           quantity: item.quantity,
           minimumLoanPeriod: item.minimum_loan_period,

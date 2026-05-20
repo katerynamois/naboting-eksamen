@@ -5,6 +5,11 @@ import { getUserId } from '@/utils/session.js'
 
 const API_BASE_URL = 'http://localhost:3002/api'
 
+function getImageUrl(url) {
+  if (url && url.startsWith('/uploads')) return `http://localhost:3002${url}`
+  return 'https://placehold.co/300x200?text=Ingen+billede'
+}
+
 export default {
   name: 'BrowseView',
   components: { GenstandCard, GenstandDetail },

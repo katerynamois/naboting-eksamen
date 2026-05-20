@@ -174,7 +174,7 @@ async function update(id, item) {
          quantity = ?, minimum_loan_period = ?, status = ?
      WHERE item_id = ?`,
     [
-      item.owner_id,
+      item.owner_id || item.userId,
       item.title,
       item.brand || null,
       item.category || null,
