@@ -2,6 +2,12 @@
 export default {
   name: "RegisterProfile",
   emits: ["show-login", "profile-created", "go-back"],
+  props: {
+    serverError: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       currentRegisterStep: 1,
@@ -475,14 +481,16 @@ export default {
             </label>
           </div>
 
+          <p v-if="serverError" class="register-error">{{ serverError }}</p>
+
           <div class="register-actions profile-image-actions">
             <button class="back-button" type="button" @click="goBack">
               Tilbage
             </button>
 
             <button class="continue-button" type="submit">
-            Fortsæt
-          </button>
+              Fortsæt
+            </button>
           </div>
         </form>
       </section>

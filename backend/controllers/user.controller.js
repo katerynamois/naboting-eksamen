@@ -49,8 +49,12 @@ export async function createUser(req, res, next) {
     }
 
     const user = await User.create(req.body);
-    res.status(201).json(user);
+    const { password_hash, ...userWithoutPassword } = user;
+    res.status(201).json(userWithoutPassword);
   } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "Email er allerede i brug" });
+    }
     next(error);
   }
 }
