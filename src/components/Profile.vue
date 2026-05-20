@@ -1,5 +1,8 @@
 <script>
 import toolsImage from "@/assets/tools.png";
+import { getUserId } from "@/utils/session.js";
+
+const API_BASE_URL = "http://localhost:3002/api";
 
 export default {
   name: "Profile",
@@ -25,7 +28,9 @@ export default {
   data() {
     return {
       toolsImage,
-      showLoans: false,
+      activeTab: "ejer",
+      ownerLoans: [],
+      borrowerLoans: [],
       welcomeTimer: null,
       isEditingProfile: false,
       profile: {
@@ -54,6 +59,18 @@ export default {
     };
   },
   computed: {
+    pendingOwnerLoans() {
+      return this.ownerLoans.filter(l => l.status === "pending");
+    },
+    activeOwnerLoans() {
+      return this.ownerLoans.filter(l => l.status === "active");
+    },
+    pendingBorrowerLoans() {
+      return this.borrowerLoans.filter(l => l.status === "pending");
+    },
+    activeBorrowerLoans() {
+      return this.borrowerLoans.filter(l => l.status === "active");
+    },
     locationText() {
       return [this.profile.postalCode, this.profile.city].filter(Boolean).join(" ");
     },
@@ -74,6 +91,18 @@ export default {
     },
     isValidCity(value) {
       return /^[A-Za-zÆØÅæøå .'-]{2,}$/.test(value.trim());
+    },
+    async fetchLoans() {
+      const userId = getUserId();
+      if (!userId) return;
+      try {
+        const [ownerRes, borrowerRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/loans/owner/${userId}`),
+          fetch(`${API_BASE_URL}/loans/borrower/${userId}`),
+        ]);
+        if (ownerRes.ok) this.ownerLoans = await ownerRes.json();
+        if (borrowerRes.ok) this.borrowerLoans = await borrowerRes.json();
+      } catch {}
     },
     applyProfileData(data) {
       if (!data) return;
@@ -187,6 +216,7 @@ export default {
   },
   mounted() {
     this.applyProfileData(this.profileData);
+    this.fetchLoans();
     if (this.editRequest > 0) {
       this.startProfileEdit();
     } else if (this.welcomeRequest > 0) {
@@ -393,53 +423,96 @@ export default {
         <button class="profile-edit-link" type="button" @click="startProfileEdit">Rediger profil</button>
       </section>
 
-      <section v-if="!isEditingProfile" class="profile-actions" aria-label="Profil handlinger">
-        <img
-          :src="toolsImage"
-          alt="V&aelig;rkt&oslash;j til at oprette genstande"
-          class="profile-tools-image"
-        />
+      <section v-if="!isEditingProfile" class="profile-dashboard">
 
-        <v-btn
-          color="primary"
-          rounded="lg"
-          size="large"
-          elevation="0"
-          class="profile-button"
-          @click="$emit('go-to-page-one')"
-        >
-          Opret genstand
-        </v-btn>
+        <div class="profile-quick-actions">
+          <button class="quick-action-btn" type="button" @click="$emit('go-to-page-one')">Opret genstand</button>
+          <button class="quick-action-btn quick-action-btn--outline" type="button" @click="$emit('go-to-items')">Mine genstande</button>
+        </div>
 
-        <v-btn
-          variant="tonal"
-          color="primary"
-          rounded="lg"
-          size="large"
-          elevation="0"
-          class="profile-button"
-          @click="$emit('go-to-items')"
-        >
-          Mine genstande
-        </v-btn>
+        <div class="tab-toggle" role="tablist">
+          <button
+            class="tab-btn"
+            :class="{ 'tab-btn--active': activeTab === 'ejer' }"
+            role="tab"
+            @click="activeTab = 'ejer'"
+          >Som ejer</button>
+          <button
+            class="tab-btn"
+            :class="{ 'tab-btn--active': activeTab === 'lejer' }"
+            role="tab"
+            @click="activeTab = 'lejer'"
+          >Som lejer</button>
+        </div>
 
-        <v-btn
-          variant="outlined"
-          color="primary"
-          rounded="lg"
-          size="large"
-          elevation="0"
-          class="profile-button"
-          @click="showLoans = !showLoans"
-        >
-          Mine l&aring;n
-        </v-btn>
+        <template v-if="activeTab === 'ejer'">
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Nye anmodninger</h2>
+              <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
+            </div>
+            <p v-if="pendingOwnerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
+            <article v-for="loan in pendingOwnerLoans" :key="loan.loan_id" class="dashboard-card">
+              <span class="dashboard-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</span>
+              <span class="dashboard-card-meta">{{ loan.item_title }}</span>
+            </article>
+          </div>
 
-      </section>
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Kommende aftaler</h2>
+              <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
+            </div>
+            <p v-if="activeOwnerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
+            <article v-for="loan in activeOwnerLoans" :key="loan.loan_id" class="dashboard-card">
+              <span class="dashboard-card-name">{{ loan.item_title }}</span>
+              <span class="dashboard-card-meta">{{ loan.borrower_first_name }} · {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
+            </article>
+          </div>
 
-      <section v-if="!isEditingProfile && showLoans" class="loan-section" aria-live="polite">
-        <h2>Mine l&aring;n</h2>
-        <p>Du har ingen aktive l&aring;n endnu.</p>
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Mangler review</h2>
+              <span class="see-all-link">Se alle</span>
+            </div>
+            <p class="dashboard-empty">Ingen reviews</p>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Nye anmodninger</h2>
+              <span class="see-all-link">Se alle</span>
+            </div>
+            <p v-if="pendingBorrowerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
+            <article v-for="loan in pendingBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+              <span class="dashboard-card-name">{{ loan.item_title }}</span>
+              <span class="dashboard-card-meta">Afventer svar</span>
+            </article>
+          </div>
+
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Kommende aftaler</h2>
+              <span class="see-all-link">Se alle</span>
+            </div>
+            <p v-if="activeBorrowerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
+            <article v-for="loan in activeBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+              <span class="dashboard-card-name">{{ loan.item_title }}</span>
+              <span class="dashboard-card-meta">{{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
+            </article>
+          </div>
+
+          <div class="dashboard-section">
+            <div class="dashboard-section-header">
+              <h2 class="dashboard-section-title">Mangler review</h2>
+              <span class="see-all-link">Se alle</span>
+            </div>
+            <p class="dashboard-empty">Ingen reviews</p>
+          </div>
+        </template>
+
       </section>
     </v-container>
   </div>
@@ -577,61 +650,119 @@ export default {
   font-weight: 800;
 }
 
-.profile-actions {
+.profile-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.quick-action-btn {
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-action-btn--outline {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.profile-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.tab-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--color-surface);
+  border-radius: var(--radius-full);
+  padding: 4px;
+}
+
+.tab-btn {
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab-btn--active {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.dashboard-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
-.profile-tools-image {
-  display: block;
-  width: min(320px, 90%);
-  height: auto;
-  margin: 0 auto var(--space-3);
+.dashboard-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.profile-button {
-  min-height: 52px;
-  text-transform: none;
-  font-weight: 700;
-  box-shadow: none !important;
-}
-
-.profile-link-button {
-  min-height: 42px;
-  background: transparent !important;
-}
-
-.profile-details-toggle {
-  border: none;
-  background: transparent;
-  color: var(--color-secondary);
-  font-family: var(--font-body);
-  font-size: var(--text-label);
-  cursor: pointer;
-  padding: 0;
-  text-align: center;
-}
-
-.loan-section {
-  margin-top: var(--space-6);
-  padding: var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.loan-section h2 {
-  margin: 0 0 6px;
+.dashboard-section-title {
+  margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-h2);
+  font-weight: 700;
   color: var(--color-neutral);
 }
 
-.loan-section p {
-  margin: 0;
+.see-all-link {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dashboard-empty {
+  margin: var(--space-4) auto;
+  color: var(--color-secondary);
   font-family: var(--font-body);
   font-size: var(--text-body);
+  font-style: italic;
+  text-align: center;
+}
+
+.dashboard-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+}
+
+.dashboard-card-name {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-neutral);
+}
+
+.dashboard-card-meta {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
   color: var(--color-secondary);
 }
 
