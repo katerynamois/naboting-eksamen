@@ -387,6 +387,12 @@ export default {
         Velkommen til Naboting! Din profil er oprettet.
       </v-snackbar>
 
+      <section v-if="!isEditingProfile" class="profile-header-display" aria-label="Profil">
+        <div class="profile-avatar-large">{{ profileName.charAt(0).toUpperCase() }}</div>
+        <h1 class="profile-display-name">{{ profileName }}</h1>
+        <button class="profile-edit-link" type="button" @click="startProfileEdit">Rediger profil</button>
+      </section>
+
       <section v-if="!isEditingProfile" class="profile-actions" aria-label="Profil handlinger">
         <img
           :src="toolsImage"
@@ -448,6 +454,57 @@ export default {
 
 .profile-container {
   max-width: 620px;
+}
+
+.profile-header-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  text-align: center;
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 36px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.profile-display-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 700;
+  color: var(--color-neutral);
+}
+
+.profile-display-meta {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+}
+
+.profile-edit-link {
+  margin-top: var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
 }
 
 .edit-profile-section {

@@ -92,6 +92,16 @@ async function findAll() {
   return rows.map(mapItem);
 }
 
+async function findByOwnerId(ownerId) {
+  const [rows] = await pool.execute(`
+    ${itemSelect}
+    WHERE i.owner_id = ?
+    GROUP BY i.item_id, img.image_url
+    ORDER BY i.item_id DESC
+  `, [ownerId]);
+  return rows.map(mapItem);
+}
+
 async function findById(id) {
   const [rows] = await pool.execute(`
     ${itemSelect}
@@ -201,6 +211,7 @@ async function remove(id) {
 export default {
   findAll,
   findById,
+  findByOwnerId,
   create,
   update,
   remove,

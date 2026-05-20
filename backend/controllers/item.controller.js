@@ -2,7 +2,9 @@ import Item from "../models/item.model.js";
 
 export async function getItems(req, res, next) {
   try {
-    const items = await Item.findAll();
+    const items = req.query.owner_id
+      ? await Item.findByOwnerId(req.query.owner_id)
+      : await Item.findAll();
     res.json(items);
   } catch (error) {
     next(error);

@@ -1,5 +1,6 @@
 <script>
 import GenstandPage from '@/components/Genstand/GenstandPage.vue'
+import { getUserId } from '@/utils/session.js'
 
 const API_BASE_URL = 'http://localhost:3002/api'
 
@@ -23,7 +24,8 @@ export default {
   methods: {
     async loadItems() {
       try {
-        const response = await fetch(`${API_BASE_URL}/items`)
+        const userId = getUserId()
+        const response = await fetch(`${API_BASE_URL}/items?owner_id=${userId}`)
         if (!response.ok) throw new Error('Kunne ikke hente genstande')
         const data = await response.json()
         this.items = data.map(item => ({
