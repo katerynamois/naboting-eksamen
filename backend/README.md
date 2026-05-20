@@ -12,6 +12,13 @@ Backend-strukturen følger opgaven:
 
 Kopier `backend/.env.example` til `backend/.env`, og tilpas database-login.
 
+Hvis du bruger MAMPs standard-MySQL pa `localhost:3306`, er login normalt:
+
+- `DB_USER=root`
+- `DB_PASSWORD=root`
+
+Importer derefter `backend/naboting.sql`, sa databasen `naboting` og tabellerne findes lokalt.
+
 ```bash
 npm install
 npm run api

@@ -11,7 +11,7 @@ export default {
     async handleProfileCreated(data) {
       this.serverError = ""
       try {
-        const res = await fetch("http://localhost:3001/api/users", {
+        const res = await fetch("http://localhost:3002/api/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

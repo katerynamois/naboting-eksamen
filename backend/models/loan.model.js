@@ -1,5 +1,10 @@
 import { pool } from "../db.config.js";
 
+function toDateString(val) {
+  if (!val) return null;
+  return new Date(val).toISOString().slice(0, 10);
+}
+
 async function findAll() {
   const [rows] = await pool.query("SELECT * FROM loans ORDER BY loan_id DESC");
   return rows;
@@ -40,8 +45,8 @@ async function create(loan) {
     [
       loan.item_id,
       loan.borrower_id,
-      loan.start_date || null,
-      loan.end_date || null,
+      toDateString(loan.start_date),
+      toDateString(loan.end_date),
       loan.message || null,
       loan.status || "pending",
     ],
@@ -58,8 +63,8 @@ async function update(id, loan) {
     [
       loan.item_id,
       loan.borrower_id,
-      loan.start_date || null,
-      loan.end_date || null,
+      toDateString(loan.start_date),
+      toDateString(loan.end_date),
       loan.message || null,
       loan.status || "pending",
       id,
