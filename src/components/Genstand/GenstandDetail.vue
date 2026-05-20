@@ -187,6 +187,14 @@ export default {
                 <p class="detail-owner-name">{{ user ? user.name : 'Din genstand' }}</p>
                 <p class="detail-owner-date">{{ createdAtText }}</p>
             </div>
+            <button
+                class="loan-button"
+                type="button"
+                @click="$router.push('/laan/' + id)"
+            >
+                Lån denne genstand
+            </button>
+
             <div class="detail-status-actions">
                 <button
                     v-for="option in ['Tilgængelig', 'Udlånt', 'Inaktiv']"
@@ -521,6 +529,19 @@ export default {
 .status-option--inactive.status-option--active {
     background: var(--color-inaktiv-bg);
     color: var(--color-inaktiv-text);
+}
+
+.loan-button {
+    flex: 0 0 100%;
+    min-height: 42px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: #ffffff;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: var(--text-label);
+    font-weight: 700;
 }
 
 .edit-button {

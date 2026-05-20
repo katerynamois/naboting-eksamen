@@ -20,14 +20,15 @@ async function findByBorrowerId(userId) {
 
 async function create(loan) {
   const [result] = await pool.execute(
-    `INSERT INTO loans (item_id, borrower_id, start_date, end_date, status)
-     VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO loans (item_id, borrower_id, start_date, end_date, message, status)
+     VALUES (?, ?, ?, ?, ?, ?)`,
     [
       loan.item_id,
       loan.borrower_id,
       loan.start_date || null,
       loan.end_date || null,
-      loan.status || "active",
+      loan.message || null,
+      loan.status || "pending",
     ],
   );
 
@@ -37,14 +38,15 @@ async function create(loan) {
 async function update(id, loan) {
   await pool.execute(
     `UPDATE loans
-     SET item_id = ?, borrower_id = ?, start_date = ?, end_date = ?, status = ?
+     SET item_id = ?, borrower_id = ?, start_date = ?, end_date = ?, message = ?, status = ?
      WHERE loan_id = ?`,
     [
       loan.item_id,
       loan.borrower_id,
       loan.start_date || null,
       loan.end_date || null,
-      loan.status || "active",
+      loan.message || null,
+      loan.status || "pending",
       id,
     ],
   );
