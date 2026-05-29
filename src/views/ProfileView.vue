@@ -35,7 +35,7 @@ export default {
             email: user.email || '',
             phone: user.phone || '',
             postalCode: user.postal_code || '',
-            city: '',
+            city: user.city || '',
           }
         }
       } catch {}
@@ -52,6 +52,7 @@ export default {
             email: updated.email,
             phone: updated.phone,
             postal_code: updated.postalCode,
+            city: updated.city,
             user_type: 'private',
           }),
         })

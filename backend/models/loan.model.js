@@ -46,20 +46,19 @@ async function findByOwnerId(userId) {
 }
 
 async function create(loan) {
-  const [result] = await pool.execute(
-    `INSERT INTO loans (item_id, borrower_id, start_date, end_date, message, status)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+  const [rows] = await pool.execute(
+    "CALL CreateLoan(?, ?, ?, ?, ?)",
     [
       loan.item_id,
       loan.borrower_id,
       toDateString(loan.start_date),
       toDateString(loan.end_date),
       loan.message || null,
-      loan.status || "pending",
     ],
   );
 
-  return findById(result.insertId);
+  const loanId = rows[0][0].loan_id;
+  return findById(loanId);
 }
 
 async function update(id, loan) {

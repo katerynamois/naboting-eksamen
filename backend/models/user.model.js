@@ -20,8 +20,8 @@ async function findByEmail(email) {
 async function create(user) {
   const [result] = await pool.execute(
     `INSERT INTO ${table}
-      (email, phone, password_hash, user_type, first_name, last_name, postal_code)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      (email, phone, password_hash, user_type, first_name, last_name, postal_code, city, profile_image_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user.email,
       user.phone || null,
@@ -30,6 +30,8 @@ async function create(user) {
       user.first_name || null,
       user.last_name || null,
       user.postal_code || null,
+      user.city || null,
+      user.profile_image_url || null,
     ],
   );
 
@@ -39,7 +41,7 @@ async function create(user) {
 async function update(id, user) {
   await pool.execute(
     `UPDATE ${table}
-     SET email = ?, phone = ?, user_type = ?, first_name = ?, last_name = ?, postal_code = ?
+     SET email = ?, phone = ?, user_type = ?, first_name = ?, last_name = ?, postal_code = ?, city = ?, profile_image_url = ?
      WHERE user_id = ?`,
     [
       user.email,
@@ -48,6 +50,8 @@ async function update(id, user) {
       user.first_name || null,
       user.last_name || null,
       user.postal_code || null,
+      user.city || null,
+      user.profile_image_url || null,
       id,
     ],
   );

@@ -6,3 +6,6 @@ dist/
 .env
 docs/pdf-debug/
 backend/*.log
+.edge-profile-check/
+frontend-check.png
+vite-dev*.log

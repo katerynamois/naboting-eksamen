@@ -131,6 +131,8 @@ CREATE TABLE `users` (
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `postal_code` varchar(20) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `profile_image_url` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -138,9 +140,9 @@ CREATE TABLE `users` (
 -- Data dump for tabellen `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `phone`, `password_hash`, `user_type`, `first_name`, `last_name`, `postal_code`, `created_at`) VALUES
-(1, 'anna@example.com', '12345678', 'hash123', 'private', 'Anna', 'Jensen', '2630', '2026-04-16 15:52:33'),
-(2, 'bo@example.com', '87654321', 'hash456', 'private', 'Bo', 'Nielsen', '4000', '2026-04-16 15:52:33');
+INSERT INTO `users` (`user_id`, `email`, `phone`, `password_hash`, `user_type`, `first_name`, `last_name`, `postal_code`, `city`, `profile_image_url`, `created_at`) VALUES
+(1, 'anna@example.com', '12345678', 'hash123', 'private', 'Anna', 'Jensen', '2630', 'Tåstrup', NULL, '2026-04-16 15:52:33'),
+(2, 'bo@example.com', '87654321', 'hash456', 'private', 'Bo', 'Nielsen', '4000', 'Roskilde', NULL, '2026-04-16 15:52:33');
 
 --
 -- Begrænsninger for dumpede tabeller
@@ -249,3 +251,46 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--
+-- Trigger: sikrer at kun ét billede er primært per genstand
+--
+
+DELIMITER //
+CREATE TRIGGER `ensure_single_primary_image`
+BEFORE INSERT ON `item_images`
+FOR EACH ROW
+BEGIN
+  IF NEW.is_primary = 1 THEN
+    UPDATE `item_images` SET `is_primary` = 0 WHERE `item_id` = NEW.item_id;
+  END IF;
+END //
+DELIMITER ;
+
+--
+-- Stored procedure: opret lån med tjek af tilgængelighed
+--
+
+DELIMITER //
+CREATE PROCEDURE `CreateLoan`(
+  IN p_item_id INT,
+  IN p_borrower_id INT,
+  IN p_start_date DATE,
+  IN p_end_date DATE,
+  IN p_message TEXT
+)
+BEGIN
+  DECLARE v_status VARCHAR(50);
+
+  SELECT `status` INTO v_status FROM `items` WHERE `item_id` = p_item_id;
+
+  IF v_status != 'available' THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Genstanden er ikke tilgængelig';
+  ELSE
+    INSERT INTO `loans` (`item_id`, `borrower_id`, `start_date`, `end_date`, `message`, `status`)
+    VALUES (p_item_id, p_borrower_id, p_start_date, p_end_date, p_message, 'pending');
+
+    SELECT LAST_INSERT_ID() AS `loan_id`;
+  END IF;
+END //
+DELIMITER ;
