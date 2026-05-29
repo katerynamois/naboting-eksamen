@@ -71,6 +71,9 @@ export default {
     activeBorrowerLoans() {
       return this.borrowerLoans.filter(l => l.status === "active");
     },
+    rejectedBorrowerLoans() {
+      return this.borrowerLoans.filter(l => l.status === "rejected");
+    },
     locationText() {
       return [this.profile.postalCode, this.profile.city].filter(Boolean).join(" ");
     },
@@ -481,35 +484,39 @@ export default {
 
         <template v-else>
           <div class="dashboard-section">
-            <div class="dashboard-section-header">
-              <h2 class="dashboard-section-title">Nye anmodninger</h2>
-              <span class="see-all-link">Se alle</span>
-            </div>
-            <p v-if="pendingBorrowerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
+            <h2 class="dashboard-section-title">Afventer svar</h2>
+            <p v-if="pendingBorrowerLoans.length === 0" class="dashboard-empty">Ingen afventende anmodninger</p>
             <article v-for="loan in pendingBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
-              <span class="dashboard-card-name">{{ loan.item_title }}</span>
-              <span class="dashboard-card-meta">Afventer svar</span>
+              <div class="dashboard-card-info">
+                <span class="dashboard-card-name">{{ loan.item_title }}</span>
+                <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
+              </div>
+              <span class="loan-badge loan-badge--pending">Afventer</span>
             </article>
           </div>
 
           <div class="dashboard-section">
-            <div class="dashboard-section-header">
-              <h2 class="dashboard-section-title">Kommende aftaler</h2>
-              <span class="see-all-link">Se alle</span>
-            </div>
-            <p v-if="activeBorrowerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
+            <h2 class="dashboard-section-title">Godkendte lån</h2>
+            <p v-if="activeBorrowerLoans.length === 0" class="dashboard-empty">Ingen godkendte lån</p>
             <article v-for="loan in activeBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
-              <span class="dashboard-card-name">{{ loan.item_title }}</span>
-              <span class="dashboard-card-meta">{{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
+              <div class="dashboard-card-info">
+                <span class="dashboard-card-name">{{ loan.item_title }}</span>
+                <span class="dashboard-card-meta">{{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : 'Ingen dato' }}</span>
+              </div>
+              <span class="loan-badge loan-badge--active">Godkendt</span>
             </article>
           </div>
 
           <div class="dashboard-section">
-            <div class="dashboard-section-header">
-              <h2 class="dashboard-section-title">Mangler review</h2>
-              <span class="see-all-link">Se alle</span>
-            </div>
-            <p class="dashboard-empty">Ingen reviews</p>
+            <h2 class="dashboard-section-title">Afviste anmodninger</h2>
+            <p v-if="rejectedBorrowerLoans.length === 0" class="dashboard-empty">Ingen afviste anmodninger</p>
+            <article v-for="loan in rejectedBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+              <div class="dashboard-card-info">
+                <span class="dashboard-card-name">{{ loan.item_title }}</span>
+                <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
+              </div>
+              <span class="loan-badge loan-badge--rejected">Afvist</span>
+            </article>
           </div>
         </template>
 
@@ -764,6 +771,36 @@ export default {
   font-family: var(--font-body);
   font-size: var(--text-label);
   color: var(--color-secondary);
+}
+
+.dashboard-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loan-badge {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.loan-badge--pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.loan-badge--active {
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.loan-badge--rejected {
+  background: #f8d7da;
+  color: #842029;
 }
 
 @media (max-width: 520px) {

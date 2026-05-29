@@ -17,7 +17,14 @@ async function findById(id) {
 
 async function findByBorrowerId(userId) {
   const [rows] = await pool.execute(
-    "SELECT * FROM loans WHERE borrower_id = ? ORDER BY loan_id DESC",
+    `SELECT loans.*, items.title AS item_title,
+            users.first_name AS owner_first_name,
+            users.last_name AS owner_last_name
+     FROM loans
+     JOIN items ON loans.item_id = items.item_id
+     JOIN users ON items.owner_id = users.user_id
+     WHERE loans.borrower_id = ?
+     ORDER BY loans.loan_id DESC`,
     [userId],
   );
   return rows;
