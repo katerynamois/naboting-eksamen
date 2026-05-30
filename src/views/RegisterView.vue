@@ -21,7 +21,8 @@ export default {
             user_type: data.userType,
             first_name: data.firstName || data.contactPerson || data.companyName || null,
             last_name: data.lastName || null,
-            postal_code: data.citySearch || null,
+            postal_code: data.postalCode || data.citySearch || null,
+            city: data.city || null,
           }),
         })
         if (!res.ok) {
