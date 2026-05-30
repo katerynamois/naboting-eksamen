@@ -253,6 +253,13 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 --
+-- Tilføj city og profile_image_url til users (hvis tabellen allerede eksisterer)
+--
+-- ALTER TABLE `users`
+--   ADD COLUMN `city` varchar(100) DEFAULT NULL AFTER `postal_code`,
+--   ADD COLUMN `profile_image_url` varchar(255) DEFAULT NULL AFTER `city`;
+
+--
 -- Trigger: sikrer at kun ét billede er primært per genstand
 --
 
