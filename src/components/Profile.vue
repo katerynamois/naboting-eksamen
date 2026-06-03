@@ -74,6 +74,9 @@ export default {
     rejectedBorrowerLoans() {
       return this.borrowerLoans.filter(l => l.status === "rejected");
     },
+    completedBorrowerLoans() {
+      return this.borrowerLoans.filter(l => l.status === "completed");
+    },
     locationText() {
       return [this.profile.postalCode, this.profile.city].filter(Boolean).join(" ");
     },
@@ -518,6 +521,17 @@ export default {
               <span class="loan-badge loan-badge--rejected">Afvist</span>
             </article>
           </div>
+
+          <div v-if="completedBorrowerLoans.length" class="dashboard-section">
+            <h2 class="dashboard-section-title">Afsluttede lån</h2>
+            <article v-for="loan in completedBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+              <div class="dashboard-card-info">
+                <span class="dashboard-card-name">{{ loan.item_title }}</span>
+                <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
+              </div>
+              <span class="loan-badge loan-badge--completed">Afsluttet</span>
+            </article>
+          </div>
         </template>
 
       </section>
@@ -801,6 +815,11 @@ export default {
 .loan-badge--rejected {
   background: #f8d7da;
   color: #842029;
+}
+
+.loan-badge--completed {
+  background: #e2e8f0;
+  color: #475569;
 }
 
 @media (max-width: 520px) {

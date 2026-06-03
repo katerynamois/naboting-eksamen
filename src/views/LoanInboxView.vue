@@ -16,6 +16,15 @@ export default {
     ownerId() {
       return getUserId()
     },
+    pendingLoans() {
+      return this.loans.filter(l => l.status === 'pending')
+    },
+    activeLoans() {
+      return this.loans.filter(l => l.status === 'active')
+    },
+    closedLoans() {
+      return this.loans.filter(l => l.status === 'rejected' || l.status === 'completed')
+    },
   },
   mounted() {
     this.fetchLoans()
@@ -41,6 +50,7 @@ export default {
       if (status === 'pending') return 'Afventer'
       if (status === 'active') return 'Godkendt'
       if (status === 'rejected') return 'Afvist'
+      if (status === 'completed') return 'Afsluttet'
       return status
     },
     async updateStatus(loan, newStatus) {
@@ -53,18 +63,15 @@ export default {
         if (res.ok) {
           const updated = await res.json()
           const index = this.loans.findIndex(l => l.loan_id === loan.loan_id)
-          if (index !== -1) this.loans[index] = updated
+          if (index !== -1) this.loans.splice(index, 1, updated)
         }
       } catch {
         this.error = 'Kunne ikke opdatere status.'
       }
     },
-    approve(loan) {
-      this.updateStatus(loan, 'active')
-    },
-    reject(loan) {
-      this.updateStatus(loan, 'rejected')
-    },
+    approve(loan) { this.updateStatus(loan, 'active') },
+    reject(loan) { this.updateStatus(loan, 'rejected') },
+    complete(loan) { this.updateStatus(loan, 'completed') },
   },
 }
 </script>
@@ -78,34 +85,84 @@ export default {
     <p v-else-if="error" class="inbox-error">{{ error }}</p>
     <p v-else-if="loans.length === 0" class="inbox-empty">Ingen anmodninger endnu.</p>
 
-    <div class="inbox-list">
-      <article v-for="loan in loans" :key="loan.loan_id" class="inbox-card">
-        <div class="inbox-card-top">
-          <div class="inbox-card-avatar">{{ (loan.borrower_first_name || '?').charAt(0).toUpperCase() }}</div>
-          <div class="inbox-card-info">
-            <p class="inbox-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</p>
-            <p class="inbox-card-item">{{ loan.item_title }}</p>
-          </div>
-          <span class="inbox-badge" :class="'inbox-badge--' + loan.status">{{ statusLabel(loan.status) }}</span>
-        </div>
+    <template v-else>
 
-        <div class="inbox-card-dates">
-          <span class="inbox-date-label">Periode</span>
-          <span class="inbox-date-value">
-            {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '—' }}
-            –
-            {{ loan.end_date ? new Date(loan.end_date).toLocaleDateString('da-DK') : '—' }}
-          </span>
+      <section v-if="pendingLoans.length" class="inbox-section">
+        <h2 class="inbox-section-title">Nye anmodninger</h2>
+        <div class="inbox-list">
+          <article v-for="loan in pendingLoans" :key="loan.loan_id" class="inbox-card">
+            <div class="inbox-card-top">
+              <div class="inbox-card-avatar">{{ (loan.borrower_first_name || '?').charAt(0).toUpperCase() }}</div>
+              <div class="inbox-card-info">
+                <p class="inbox-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</p>
+                <p class="inbox-card-item">{{ loan.item_title }}</p>
+              </div>
+              <span class="inbox-badge inbox-badge--pending">Afventer</span>
+            </div>
+            <div class="inbox-card-dates">
+              <span class="inbox-date-label">Periode</span>
+              <span class="inbox-date-value">
+                {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '—' }}
+                –
+                {{ loan.end_date ? new Date(loan.end_date).toLocaleDateString('da-DK') : '—' }}
+              </span>
+            </div>
+            <p v-if="loan.message" class="inbox-message">{{ loan.message }}</p>
+            <div class="inbox-actions">
+              <button class="inbox-btn inbox-btn--reject" @click="reject(loan)">Afvis</button>
+              <button class="inbox-btn inbox-btn--approve" @click="approve(loan)">Godkend</button>
+            </div>
+          </article>
         </div>
+      </section>
 
-        <p v-if="loan.message" class="inbox-message">{{ loan.message }}</p>
-
-        <div v-if="loan.status === 'pending'" class="inbox-actions">
-          <button class="inbox-btn inbox-btn--reject" @click="reject(loan)">Afvis</button>
-          <button class="inbox-btn inbox-btn--approve" @click="approve(loan)">Godkend</button>
+      <section v-if="activeLoans.length" class="inbox-section">
+        <h2 class="inbox-section-title">Aktive lån</h2>
+        <div class="inbox-list">
+          <article v-for="loan in activeLoans" :key="loan.loan_id" class="inbox-card">
+            <div class="inbox-card-top">
+              <div class="inbox-card-avatar">{{ (loan.borrower_first_name || '?').charAt(0).toUpperCase() }}</div>
+              <div class="inbox-card-info">
+                <p class="inbox-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</p>
+                <p class="inbox-card-item">{{ loan.item_title }}</p>
+              </div>
+              <span class="inbox-badge inbox-badge--active">Godkendt</span>
+            </div>
+            <div class="inbox-card-dates">
+              <span class="inbox-date-label">Periode</span>
+              <span class="inbox-date-value">
+                {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '—' }}
+                –
+                {{ loan.end_date ? new Date(loan.end_date).toLocaleDateString('da-DK') : '—' }}
+              </span>
+            </div>
+            <p v-if="loan.message" class="inbox-message">{{ loan.message }}</p>
+            <div class="inbox-actions">
+              <button class="inbox-btn inbox-btn--complete" @click="complete(loan)">Afslut lån</button>
+            </div>
+          </article>
         </div>
-      </article>
-    </div>
+      </section>
+
+      <section v-if="closedLoans.length" class="inbox-section">
+        <h2 class="inbox-section-title">Afsluttede</h2>
+        <div class="inbox-list">
+          <article v-for="loan in closedLoans" :key="loan.loan_id" class="inbox-card inbox-card--closed">
+            <div class="inbox-card-top">
+              <div class="inbox-card-avatar">{{ (loan.borrower_first_name || '?').charAt(0).toUpperCase() }}</div>
+              <div class="inbox-card-info">
+                <p class="inbox-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</p>
+                <p class="inbox-card-item">{{ loan.item_title }}</p>
+              </div>
+              <span class="inbox-badge" :class="loan.status === 'rejected' ? 'inbox-badge--rejected' : 'inbox-badge--completed'">
+                {{ statusLabel(loan.status) }}
+              </span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </template>
   </main>
 </template>
 
@@ -272,5 +329,35 @@ export default {
   background: var(--color-surface);
   color: var(--color-accent);
   border: 1px solid var(--color-accent);
+}
+
+.inbox-btn--complete {
+  background: var(--color-surface);
+  color: var(--color-neutral);
+  border: 1px solid var(--color-border);
+}
+
+.inbox-badge--completed {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.inbox-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.inbox-section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 700;
+  color: var(--color-neutral);
+}
+
+.inbox-card--closed {
+  opacity: 0.65;
 }
 </style>

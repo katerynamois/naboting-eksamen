@@ -12,9 +12,11 @@ export default {
       endDate: '',
       message: '',
       itemTitle: '',
+      minimumLoanPeriod: null,
       submitted: false,
       submitting: false,
       error: '',
+      dateError: '',
     }
   },
   computed: {
@@ -24,21 +26,62 @@ export default {
     borrowerId() {
       return getUserId()
     },
+    today() {
+      return new Date().toISOString().slice(0, 10)
+    },
+    selectedDays() {
+      if (!this.startDate || !this.endDate) return null
+      const start = new Date(this.startDate)
+      const end = new Date(this.endDate)
+      return Math.round((end - start) / (1000 * 60 * 60 * 24))
+    },
+    periodText() {
+      if (this.selectedDays === null) return null
+      return this.selectedDays === 1 ? '1 dag' : `${this.selectedDays} dage`
+    },
+    minPeriodText() {
+      if (!this.minimumLoanPeriod) return null
+      return this.minimumLoanPeriod === 1 ? '1 dag' : `${this.minimumLoanPeriod} dage`
+    },
   },
   mounted() {
     if (this.itemId) {
-      this.fetchItemTitle()
+      this.fetchItem()
     }
   },
   methods: {
-    async fetchItemTitle() {
+    async fetchItem() {
       try {
         const res = await fetch(`${API_BASE_URL}/items/${this.itemId}`)
         if (res.ok) {
           const item = await res.json()
           this.itemTitle = item.title
+          this.minimumLoanPeriod = item.minimum_loan_period || null
         }
       } catch {}
+    },
+    validateDates() {
+      this.dateError = ''
+      if (!this.startDate || !this.endDate) {
+        this.dateError = 'Vælg både start- og slutdato.'
+        return false
+      }
+      if (this.startDate < this.today) {
+        this.dateError = 'Startdatoen kan ikke ligge i fortiden.'
+        return false
+      }
+      if (this.endDate < this.startDate) {
+        this.dateError = 'Slutdatoen skal være efter startdatoen.'
+        return false
+      }
+      if (this.minimumLoanPeriod && this.selectedDays < this.minimumLoanPeriod) {
+        this.dateError = `Minimum låneperiode er ${this.minPeriodText}. Du har valgt ${this.periodText}.`
+        return false
+      }
+      return true
+    },
+    goToStep2() {
+      if (this.validateDates()) this.currentStep = 2
     },
     async submitRequest() {
       if (!this.borrowerId) {
@@ -54,14 +97,15 @@ export default {
           body: JSON.stringify({
             item_id: this.itemId,
             borrower_id: this.borrowerId,
-            start_date: this.startDate || null,
-            end_date: this.endDate || null,
+            start_date: this.startDate,
+            end_date: this.endDate,
             message: this.message,
             status: 'pending',
           }),
         })
         if (!res.ok) {
-          this.error = 'Noget gik galt. Prøv igen.'
+          const err = await res.json()
+          this.error = err.message || 'Noget gik galt. Prøv igen.'
           return
         }
         this.submitted = true
@@ -97,18 +141,27 @@ export default {
 
       <section v-if="currentStep === 1" class="loan-section">
         <h2 class="loan-step-title">Vælg datoer</h2>
+
+        <p v-if="minPeriodText" class="min-period-hint">
+          Minimum låneperiode: <strong>{{ minPeriodText }}</strong>
+        </p>
+
         <div class="date-fields">
           <div class="date-field">
             <label class="field-label" for="start-date">Startdato</label>
-            <input class="field-input" type="date" id="start-date" v-model="startDate" />
+            <input class="field-input" type="date" id="start-date" v-model="startDate" :min="today" />
           </div>
           <div class="date-field">
             <label class="field-label" for="end-date">Slutdato</label>
-            <input class="field-input" type="date" id="end-date" v-model="endDate" />
+            <input class="field-input" type="date" id="end-date" v-model="endDate" :min="startDate || today" />
           </div>
         </div>
+
+        <p v-if="periodText && !dateError" class="period-display">Valgt periode: <strong>{{ periodText }}</strong></p>
+        <p v-if="dateError" class="loan-error">{{ dateError }}</p>
+
         <div class="loan-actions">
-          <button class="btn-primary" @click="currentStep = 2">Næste</button>
+          <button class="btn-primary" @click="goToStep2">Næste</button>
         </div>
       </section>
 
@@ -117,7 +170,7 @@ export default {
         <textarea
           class="loan-textarea"
           v-model="message"
-          placeholder="Skriv en besked til ejeren..."
+          placeholder="Skriv en besked til ejeren... (valgfri)"
           rows="5"
         ></textarea>
         <div class="loan-actions">
@@ -131,11 +184,15 @@ export default {
         <div class="confirm-box">
           <div class="confirm-row">
             <span class="confirm-label">Startdato</span>
-            <span class="confirm-value">{{ startDate || '—' }}</span>
+            <span class="confirm-value">{{ new Date(startDate).toLocaleDateString('da-DK') }}</span>
           </div>
           <div class="confirm-row">
             <span class="confirm-label">Slutdato</span>
-            <span class="confirm-value">{{ endDate || '—' }}</span>
+            <span class="confirm-value">{{ new Date(endDate).toLocaleDateString('da-DK') }}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="confirm-label">Periode</span>
+            <span class="confirm-value">{{ periodText }}</span>
           </div>
           <div v-if="message" class="confirm-row">
             <span class="confirm-label">Besked</span>
@@ -214,6 +271,16 @@ export default {
   margin: 0;
 }
 
+.min-period-hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
 .date-fields {
   display: flex;
   flex-direction: column;
@@ -245,6 +312,14 @@ export default {
   outline: none;
   width: 100%;
   box-sizing: border-box;
+}
+
+.period-display {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+  text-align: center;
 }
 
 .loan-textarea {

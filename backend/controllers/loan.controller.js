@@ -1,4 +1,5 @@
 import Loan from "../models/loan.model.js";
+import Item from "../models/item.model.js";
 
 export async function getLoans(req, res, next) {
   try {
@@ -63,6 +64,14 @@ export async function updateLoan(req, res, next) {
     }
 
     const loan = await Loan.update(req.params.id, req.body);
+
+    const newStatus = req.body.status;
+    if (newStatus === "active") {
+      await Item.updateStatus(existingLoan.item_id, "loaned");
+    } else if (newStatus === "rejected" || newStatus === "completed") {
+      await Item.updateStatus(existingLoan.item_id, "available");
+    }
+
     res.json(loan);
   } catch (error) {
     next(error);
