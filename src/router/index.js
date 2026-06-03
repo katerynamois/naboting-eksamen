@@ -23,6 +23,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && !getSession()) {
     return { path: '/login' }
   }
+  return true
 })
 
 export default router

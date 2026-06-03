@@ -64,6 +64,8 @@ export default {
         <form class="login-form" @submit.prevent="submitLogin">
           <input
             v-model="email"
+            id="login-email"
+            name="email"
             class="login-input login-input--highlight"
             type="email"
             placeholder="Din email adresse"
@@ -72,6 +74,8 @@ export default {
 
           <input
             v-model="password"
+            id="login-password"
+            name="password"
             class="login-input"
             type="password"
             placeholder="Dit password"
@@ -96,6 +100,8 @@ export default {
         <form class="login-form reset-form" @submit.prevent="sendPasswordReset">
           <input
             v-model="email"
+            id="reset-email"
+            name="email"
             class="login-input login-input--highlight"
             type="email"
             placeholder="Din email adresse"
