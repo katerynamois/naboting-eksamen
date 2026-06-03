@@ -2,6 +2,7 @@
 import PageOne from '@/components/PageOne.vue'
 import AddDetails from '@/components/AddDetails.vue'
 import ConfirmItemScreen from '@/components/ConfirmItemScreen.vue'
+import { getUserId } from '@/utils/session.js'
 
 const API_BASE_URL = 'http://localhost:3002/api'
 
@@ -35,7 +36,7 @@ export default {
       const d1 = this.pageOneData
       const d2 = this.addDetailsData
       const newItem = {
-        owner_id: 1,
+        owner_id: getUserId(),
         title: d1.name,
         category: d1.category,
         brand: d1.brand || null,

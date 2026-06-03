@@ -9,3 +9,5 @@ backend/*.log
 .edge-profile-check/
 frontend-check.png
 vite-dev*.log
+*-rapport.md
+database-rapport.md
