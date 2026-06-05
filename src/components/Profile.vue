@@ -662,6 +662,12 @@ export default {
   .profile-layout {
     grid-template-columns: 1fr;
   }
+  .profile-sidebar {
+    order: 2;
+  }
+  .profile-main {
+    order: 1;
+  }
   .profile-input-grid {
     grid-template-columns: 1fr;
   }
