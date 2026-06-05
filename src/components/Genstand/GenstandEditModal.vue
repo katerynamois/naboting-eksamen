@@ -8,11 +8,9 @@ export default {
         condition: { type: String, default: '' },
         minimumLoanPeriod: { type: [Number, String], default: '' },
         quantity: { type: [Number, String], default: 1 },
-    },
-    emits: ['save', 'close'],
-    props: {
         currentImage: { type: String, default: null },
     },
+    emits: ['save', 'close'],
     data() {
         return {
             form: {
