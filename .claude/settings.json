@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting)",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"SELECT item_id, owner_id, title FROM items ORDER BY item_id;\")",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"SELECT image_id, item_id FROM item_images ORDER BY image_id; SELECT accessory_id, item_id, name FROM accessories ORDER BY accessory_id;\")",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"DROP TRIGGER IF EXISTS ensure_single_primary_image;\")",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"SELECT COUNT\\(*\\) as items FROM items; SELECT COUNT\\(*\\) as images FROM item_images; SELECT COUNT\\(*\\) as accessories FROM accessories; SHOW TRIGGERS;\")",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 --default-character-set=utf8 naboting -e \"SELECT item_id, title, brand, category FROM items ORDER BY item_id;\")",
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 --default-character-set=utf8 naboting)"
+    ]
+  }
+}

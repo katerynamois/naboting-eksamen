@@ -143,6 +143,7 @@ export default {
                 :src="image"
                 :alt="`Billede af ${title}`"
                 class="detail-image"
+                @error="e => e.target.classList.add('detail-image--fallback')"
             />
             <span class="detail-status" :class="statusClass">
                 <span class="detail-status-dot" aria-hidden="true"></span>
@@ -297,6 +298,11 @@ export default {
     height: 220px;
     object-fit: contain;
     display: block;
+}
+
+.detail-image--fallback {
+    background-color: var(--color-border);
+    color: transparent;
 }
 
 .detail-status {

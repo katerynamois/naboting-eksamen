@@ -243,13 +243,6 @@ export default {
                 </article>
               </div>
 
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Mangler review</h2>
-                  <span class="see-all-link">Se alle</span>
-                </div>
-                <p class="dashboard-empty">Ingen reviews</p>
-              </div>
             </template>
 
             <template v-else>

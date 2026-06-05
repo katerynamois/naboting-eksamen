@@ -42,7 +42,17 @@ CREATE TABLE `accessories` (
 INSERT INTO `accessories` (`accessory_id`, `item_id`, `name`) VALUES
 (1, 1, 'Oplader'),
 (2, 1, 'Ekstra batteri'),
-(3, 2, 'Pløkker');
+(3, 2, 'Pløkker'),
+(4, 2, 'Soveunderlag'),
+(5, 4, 'Slange'),
+(6, 4, 'Sæbekoncentrat'),
+(7, 8, 'HDMI-kabel'),
+(8, 8, 'Fjernbetjening'),
+(9, 10, 'Regnslag'),
+(10, 10, 'Sikkerhedssele'),
+(11, 13, 'Pagaj'),
+(12, 13, 'Redningsvest'),
+(13, 13, 'Skørt');
 
 -- --------------------------------------------------------
 
@@ -69,7 +79,21 @@ CREATE TABLE `items` (
 
 INSERT INTO `items` (`item_id`, `owner_id`, `title`, `brand`, `category`, `item_condition`, `quantity`, `minimum_loan_period`, `status`, `created_at`) VALUES
 (1, 1, 'Boremaskine', 'Bosch', 'Værktøj', 'God', 1, 3, 'available', '2026-04-16 15:52:57'),
-(2, 2, 'Telt', 'Outwell', 'Fritid', 'Meget god', 1, 2, 'available', '2026-04-16 15:52:57');
+(2, 2, 'Telt', 'Outwell', 'Fritid', 'Meget god', 1, 2, 'available', '2026-04-16 15:52:57'),
+(3, 1, 'Stige (3 meter)', 'Hailo', 'Værktøj', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(4, 1, 'Højtryksrenser', 'Kärcher', 'Udstyr', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(5, 1, 'Græsslåmaskine', 'Honda', 'Have', 'God', 1, 3, 'available', '2026-04-16 16:00:00'),
+(6, 1, 'Campingstole', NULL, 'Fritid', 'God', 2, 1, 'available', '2026-04-16 16:00:00'),
+(7, 1, 'Sovepose', 'Nordisk', 'Fritid', 'Meget god', 1, 1, 'available', '2026-04-16 16:00:00'),
+(8, 1, 'Projektor', 'BenQ', 'Elektronik', 'Meget god', 1, 1, 'available', '2026-04-16 16:00:00'),
+(9, 1, 'Røremaskine', 'KitchenAid', 'Køkken', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(10, 2, 'Cykelvogn', 'Thule', 'Transport', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(11, 2, 'Hækkeklipper', 'Bosch', 'Have', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(12, 2, 'Slibemaskine', 'Makita', 'Værktøj', 'God', 1, 2, 'available', '2026-04-16 16:00:00'),
+(13, 2, 'Kajak', NULL, 'Fritid', 'Meget god', 1, 3, 'available', '2026-04-16 16:00:00'),
+(14, 2, 'Yogamåtter', NULL, 'Sport', 'Ny', 2, 1, 'available', '2026-04-16 16:00:00'),
+(15, 2, 'Airfryer', 'Philips', 'Køkken', 'Meget god', 1, 2, 'available', '2026-04-16 16:00:00'),
+(16, 2, 'Elcykel', 'Trek', 'Transport', 'God', 1, 3, 'available', '2026-04-16 16:00:00');
 
 -- --------------------------------------------------------
 
@@ -90,7 +114,21 @@ CREATE TABLE `item_images` (
 
 INSERT INTO `item_images` (`image_id`, `item_id`, `image_url`, `is_primary`) VALUES
 (1, 1, 'images/boremaskine.jpg', 1),
-(2, 2, 'images/telt.jpg', 1);
+(2, 2, 'images/telt.jpg', 1),
+(3, 3, 'images/stige.jpg', 1),
+(4, 4, 'images/hojtrykrenser.jpg', 1),
+(5, 5, 'images/graesslasmaskine.jpg', 1),
+(6, 6, 'images/campingstole.jpg', 1),
+(7, 7, 'images/sovepose.jpg', 1),
+(8, 8, 'images/projektor.jpg', 1),
+(9, 9, 'images/roeremaskine.jpg', 1),
+(10, 10, 'images/cykelvogn.jpg', 1),
+(11, 11, 'images/haekkelipper.jpg', 1),
+(12, 12, 'images/slibemaskine.jpg', 1),
+(13, 13, 'images/kajak.jpg', 1),
+(14, 14, 'images/yogamaatter.jpg', 1),
+(15, 15, 'images/airfryer.jpg', 1),
+(16, 16, 'images/elcykel.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -192,19 +230,19 @@ ALTER TABLE `users`
 -- Tilføj AUTO_INCREMENT i tabel `accessories`
 --
 ALTER TABLE `accessories`
-  MODIFY `accessory_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `accessory_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `items`
 --
 ALTER TABLE `items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `item_images`
 --
 ALTER TABLE `item_images`
-  MODIFY `image_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `image_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `loans`

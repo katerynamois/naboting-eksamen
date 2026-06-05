@@ -58,6 +58,7 @@ export default {
         :src="image"
         :alt="`Billede af ${title}`"
         class="card-image"
+        @error="e => e.target.classList.add('card-image--fallback')"
     />
 
     <div class="card-content">
@@ -98,6 +99,11 @@ export default {
     border-radius: var(--radius-md);
     object-fit: cover;
     flex-shrink: 0;
+}
+
+.card-image--fallback {
+    background-color: var(--color-border);
+    color: transparent;
 }
 
 
