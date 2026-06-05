@@ -191,7 +191,11 @@ async function update(id, item) {
     if (savedUrl) {
       await pool.execute("DELETE FROM item_images WHERE item_id = ? AND is_primary = 1", [id]);
       await pool.execute(
-        "INSERT INTO item_images (item_id, image_url, is_primary) VALUES (?, ?, 1)",
+        "INSERT INTO item_images (item_id, image_url, is_primary) VALUES (?, ?, 0)",
+        [id, savedUrl],
+      );
+      await pool.execute(
+        "UPDATE item_images SET is_primary = 1 WHERE item_id = ? AND image_url = ?",
         [id, savedUrl],
       );
     }

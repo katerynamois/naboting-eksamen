@@ -81,10 +81,16 @@ export default {
     },
     async handleEditItem(updated) {
       try {
+        const existing = this.items.find(i => i.id === updated.id)
+        const payload = {
+          owner_id: existing?.userId,
+          status: toApiStatus(existing?.status || 'available'),
+          ...updated,
+        }
         await fetch(`${API_BASE_URL}/items/${updated.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updated),
+          body: JSON.stringify(payload),
         })
         await this.loadItems()
       } catch (error) {
