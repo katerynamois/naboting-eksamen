@@ -18,6 +18,8 @@ export default {
       activeSection: "aftaler",
       ownerLoans: [],
       borrowerLoans: [],
+      selectedLoan: null,
+      showLoanDialog: false,
       welcomeTimer: null,
       profile: {
         firstName: "", lastName: "", email: "",
@@ -133,6 +135,24 @@ export default {
       this.$emit("update-profile", { ...this.profile });
     },
 
+    openLoan(loan) {
+      this.selectedLoan = loan;
+      this.showLoanDialog = true;
+    },
+    async updateLoanStatus(loan, newStatus) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/loans/${loan.loan_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...loan, status: newStatus }),
+        });
+        if (res.ok) {
+          await this.fetchLoans();
+          this.showLoanDialog = false;
+        }
+      } catch {}
+    },
+
     showTemporaryWelcome() {
       window.clearTimeout(this.welcomeTimer);
       this.showWelcomeSnackbar = true;
@@ -188,7 +208,7 @@ export default {
               <v-icon class="nav-icon">mdi-account-outline</v-icon>
               Konto
             </button>
-            <button class="sidebar-nav-item" :class="{ 'sidebar-nav-item--active': activeSection === 'aftaler' }" type="button" @click="activeSection = 'aftaler'">
+            <button class="sidebar-nav-item" :class="{ 'sidebar-nav-item--active': activeSection === 'aftaler' }" type="button" @click="activeSection = 'aftaler'; fetchLoans()">
               <v-icon class="nav-icon">mdi-swap-vertical</v-icon>
               Aftaler
             </button>
@@ -225,7 +245,7 @@ export default {
                   <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
                 </div>
                 <p v-if="pendingOwnerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
-                <article v-for="loan in pendingOwnerLoans" :key="loan.loan_id" class="dashboard-card">
+                <article v-for="loan in pendingOwnerLoans" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <span class="dashboard-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</span>
                   <span class="dashboard-card-meta">{{ loan.item_title }}</span>
                 </article>
@@ -237,7 +257,7 @@ export default {
                   <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
                 </div>
                 <p v-if="activeOwnerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
-                <article v-for="loan in activeOwnerLoans" :key="loan.loan_id" class="dashboard-card">
+                <article v-for="loan in activeOwnerLoans" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <span class="dashboard-card-name">{{ loan.item_title }}</span>
                   <span class="dashboard-card-meta">{{ loan.borrower_first_name }} · {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
                 </article>
@@ -330,6 +350,50 @@ export default {
       </div>
 
     </v-container>
+
+    <!-- Lån-dialog -->
+    <v-dialog v-model="showLoanDialog" max-width="420" rounded="lg">
+      <v-card v-if="selectedLoan" rounded="lg" class="loan-dialog-card">
+        <v-card-title class="loan-dialog-title">
+          {{ selectedLoan.item_title }}
+        </v-card-title>
+
+        <v-card-text class="loan-dialog-body">
+          <div class="loan-dialog-row" v-if="selectedLoan.borrower_first_name">
+            <span class="loan-dialog-label">Låner</span>
+            <span>{{ selectedLoan.borrower_first_name }} {{ selectedLoan.borrower_last_name }}</span>
+          </div>
+          <div class="loan-dialog-row" v-if="selectedLoan.owner_first_name">
+            <span class="loan-dialog-label">Ejer</span>
+            <span>{{ selectedLoan.owner_first_name }} {{ selectedLoan.owner_last_name }}</span>
+          </div>
+          <div class="loan-dialog-row" v-if="selectedLoan.start_date">
+            <span class="loan-dialog-label">Fra</span>
+            <span>{{ new Date(selectedLoan.start_date).toLocaleDateString('da-DK') }}</span>
+          </div>
+          <div class="loan-dialog-row" v-if="selectedLoan.end_date">
+            <span class="loan-dialog-label">Til</span>
+            <span>{{ new Date(selectedLoan.end_date).toLocaleDateString('da-DK') }}</span>
+          </div>
+          <div class="loan-dialog-row" v-if="selectedLoan.message">
+            <span class="loan-dialog-label">Besked</span>
+            <span>{{ selectedLoan.message }}</span>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="loan-dialog-actions">
+          <template v-if="selectedLoan.status === 'pending'">
+            <v-btn variant="flat" color="error" rounded="md" @click="updateLoanStatus(selectedLoan, 'rejected')">Afvis</v-btn>
+            <v-btn variant="flat" color="primary" rounded="md" @click="updateLoanStatus(selectedLoan, 'active')">Godkend</v-btn>
+          </template>
+          <template v-else-if="selectedLoan.status === 'active'">
+            <v-btn variant="flat" color="primary" rounded="md" @click="updateLoanStatus(selectedLoan, 'completed')">Afslut lån</v-btn>
+          </template>
+          <v-btn variant="text" rounded="md" @click="showLoanDialog = false">Luk</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
@@ -565,6 +629,54 @@ export default {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
+}
+
+.dashboard-card--clickable {
+  cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.dashboard-card--clickable:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.loan-dialog-card {
+  padding: 8px 0;
+}
+
+.loan-dialog-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-neutral);
+  padding: 20px 24px 8px;
+}
+
+.loan-dialog-body {
+  padding: 8px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loan-dialog-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--color-neutral);
+}
+
+.loan-dialog-label {
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+.loan-dialog-actions {
+  padding: 8px 16px 16px;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .dashboard-card-name {
