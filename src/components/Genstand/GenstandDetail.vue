@@ -239,6 +239,7 @@ export default {
             :condition="condition"
             :minimumLoanPeriod="minimumLoanPeriod"
             :quantity="quantity"
+            :currentImage="image"
             @save="handleSaveEdit"
             @close="showEditModal = false"
         />

@@ -186,6 +186,17 @@ async function update(id, item) {
     ],
   );
 
+  if (item.newImage && typeof item.newImage === "string" && item.newImage.startsWith("data:image/")) {
+    const savedUrl = await saveImageUrl(item.newImage);
+    if (savedUrl) {
+      await pool.execute("DELETE FROM item_images WHERE item_id = ? AND is_primary = 1", [id]);
+      await pool.execute(
+        "INSERT INTO item_images (item_id, image_url, is_primary) VALUES (?, ?, 1)",
+        [id, savedUrl],
+      );
+    }
+  }
+
   return findById(id);
 }
 

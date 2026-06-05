@@ -10,6 +10,9 @@ export default {
         quantity: { type: [Number, String], default: 1 },
     },
     emits: ['save', 'close'],
+    props: {
+        currentImage: { type: String, default: null },
+    },
     data() {
         return {
             form: {
@@ -21,9 +24,21 @@ export default {
                 quantity: this.quantity ?? 1,
             },
             conditionOptions: ['Ny', 'God', 'Brugt', 'Slidt'],
+            newImageBase64: null,
+            imagePreview: null,
         }
     },
     methods: {
+        onImageChange(e) {
+            const file = e.target.files[0]
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = (ev) => {
+                this.newImageBase64 = ev.target.result
+                this.imagePreview = ev.target.result
+            }
+            reader.readAsDataURL(file)
+        },
         save() {
             if (!this.form.title.trim()) return
             this.$emit('save', {
@@ -33,6 +48,7 @@ export default {
                 condition: this.form.condition || null,
                 minimumLoanPeriod: this.form.minimumLoanPeriod !== '' ? Number(this.form.minimumLoanPeriod) : null,
                 quantity: this.form.quantity ? Number(this.form.quantity) : 1,
+                newImage: this.newImageBase64 || null,
             })
         },
     },
@@ -49,6 +65,20 @@ export default {
             </div>
 
             <form class="modal-form" @submit.prevent="save">
+
+                <!-- Billede -->
+                <div class="field-group">
+                    <label class="field-label">Billede</label>
+                    <label class="image-upload-label">
+                        <img v-if="imagePreview || currentImage" :src="imagePreview || currentImage" class="image-preview" alt="Forhåndsvisning" />
+                        <div v-else class="image-placeholder">
+                            <v-icon size="28" color="var(--color-secondary)">mdi-camera-plus-outline</v-icon>
+                            <span>Vælg billede</span>
+                        </div>
+                        <input type="file" accept="image/*" class="image-input" @change="onImageChange" />
+                    </label>
+                    <p v-if="imagePreview" class="image-hint">Nyt billede valgt</p>
+                </div>
 
                 <!-- Titel -->
                 <div class="field-group">
@@ -230,6 +260,49 @@ export default {
     background-position: right 14px center;
     padding-right: 36px;
     cursor: pointer;
+}
+
+.image-upload-label {
+    display: block;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 2px dashed var(--color-border);
+    transition: border-color 0.15s;
+}
+
+.image-upload-label:hover {
+    border-color: var(--color-primary);
+}
+
+.image-preview {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-placeholder {
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    color: var(--color-secondary);
+    font-family: var(--font-body);
+    font-size: var(--text-label);
+}
+
+.image-input {
+    display: none;
+}
+
+.image-hint {
+    font-family: var(--font-body);
+    font-size: var(--text-meta);
+    color: var(--color-primary);
+    margin: 4px 0 0;
 }
 
 .save-button {

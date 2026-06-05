@@ -74,6 +74,10 @@ export default {
     />
 
     <div v-else>
+      <button class="back-btn" @click="$router.back()">
+        <v-icon size="18">mdi-arrow-left</v-icon>
+        Tilbage
+      </button>
       <h1 class="browse-title">Find genstande</h1>
 
       <p v-if="items.length === 0" class="browse-empty">Ingen tilgængelige genstande.</p>
@@ -101,6 +105,25 @@ export default {
   background: var(--color-bg);
   min-height: 100vh;
   padding: var(--space-4);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--color-neutral);
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-4);
+}
+
+.back-btn:hover {
+  color: var(--color-primary);
 }
 
 .browse-title {

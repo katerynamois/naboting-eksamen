@@ -242,10 +242,12 @@ export default {
               <div class="dashboard-section">
                 <div class="dashboard-section-header">
                   <h2 class="dashboard-section-title">Nye anmodninger</h2>
-                  <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
+                  <RouterLink v-if="pendingOwnerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
                 </div>
                 <p v-if="pendingOwnerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
-                <article v-for="loan in pendingOwnerLoans" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
+                <article v-for="loan in pendingOwnerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <span class="dashboard-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</span>
                   <span class="dashboard-card-meta">{{ loan.item_title }}</span>
                 </article>
@@ -254,10 +256,12 @@ export default {
               <div class="dashboard-section">
                 <div class="dashboard-section-header">
                   <h2 class="dashboard-section-title">Kommende aftaler</h2>
-                  <RouterLink to="/indbakke" class="see-all-link">Se alle</RouterLink>
+                  <RouterLink v-if="activeOwnerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
                 </div>
                 <p v-if="activeOwnerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
-                <article v-for="loan in activeOwnerLoans" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
+                <article v-for="loan in activeOwnerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <span class="dashboard-card-name">{{ loan.item_title }}</span>
                   <span class="dashboard-card-meta">{{ loan.borrower_first_name }} · {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
                 </article>
@@ -267,9 +271,14 @@ export default {
 
             <template v-else>
               <div class="dashboard-section">
-                <h2 class="dashboard-section-title">Afventer svar</h2>
+                <div class="dashboard-section-header">
+                  <h2 class="dashboard-section-title">Afventer svar</h2>
+                  <RouterLink v-if="pendingBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
+                </div>
                 <p v-if="pendingBorrowerLoans.length === 0" class="dashboard-empty">Ingen afventende anmodninger</p>
-                <article v-for="loan in pendingBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+                <article v-for="loan in pendingBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <div class="dashboard-card-info">
                     <span class="dashboard-card-name">{{ loan.item_title }}</span>
                     <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
@@ -279,9 +288,14 @@ export default {
               </div>
 
               <div class="dashboard-section">
-                <h2 class="dashboard-section-title">Godkendte lån</h2>
+                <div class="dashboard-section-header">
+                  <h2 class="dashboard-section-title">Godkendte lån</h2>
+                  <RouterLink v-if="activeBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
+                </div>
                 <p v-if="activeBorrowerLoans.length === 0" class="dashboard-empty">Ingen godkendte lån</p>
-                <article v-for="loan in activeBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+                <article v-for="loan in activeBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <div class="dashboard-card-info">
                     <span class="dashboard-card-name">{{ loan.item_title }}</span>
                     <span class="dashboard-card-meta">{{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : 'Ingen dato' }}</span>
@@ -291,9 +305,14 @@ export default {
               </div>
 
               <div class="dashboard-section">
-                <h2 class="dashboard-section-title">Afviste anmodninger</h2>
+                <div class="dashboard-section-header">
+                  <h2 class="dashboard-section-title">Afviste anmodninger</h2>
+                  <RouterLink v-if="rejectedBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
+                </div>
                 <p v-if="rejectedBorrowerLoans.length === 0" class="dashboard-empty">Ingen afviste anmodninger</p>
-                <article v-for="loan in rejectedBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+                <article v-for="loan in rejectedBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <div class="dashboard-card-info">
                     <span class="dashboard-card-name">{{ loan.item_title }}</span>
                     <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
@@ -303,8 +322,13 @@ export default {
               </div>
 
               <div v-if="completedBorrowerLoans.length" class="dashboard-section">
-                <h2 class="dashboard-section-title">Afsluttede lån</h2>
-                <article v-for="loan in completedBorrowerLoans" :key="loan.loan_id" class="dashboard-card">
+                <div class="dashboard-section-header">
+                  <h2 class="dashboard-section-title">Afsluttede lån</h2>
+                  <RouterLink v-if="completedBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
+                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
+                  </RouterLink>
+                </div>
+                <article v-for="loan in completedBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
                   <div class="dashboard-card-info">
                     <span class="dashboard-card-name">{{ loan.item_title }}</span>
                     <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>

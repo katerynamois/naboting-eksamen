@@ -92,6 +92,11 @@ export default {
         <!-- List view — shown when no item is selected -->
         <div v-else>
 
+            <button class="back-btn" @click="$router.back()">
+                <v-icon size="18">mdi-arrow-left</v-icon>
+                Tilbage
+            </button>
+
             <h1 class="items-title">Mine genstande</h1>
 
             <GenstandFilter
@@ -140,6 +145,25 @@ export default {
 </template>
 
 <style scoped>
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: var(--text-label);
+    font-weight: 600;
+    color: var(--color-neutral);
+    cursor: pointer;
+    padding: var(--space-2) 0;
+    margin-bottom: var(--space-4);
+}
+
+.back-btn:hover {
+    color: var(--color-primary);
+}
 
 .items-title {
     font-family: var(--font-display);
