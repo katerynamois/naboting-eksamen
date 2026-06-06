@@ -20,6 +20,7 @@ export default {
       borrowerLoans: [],
       selectedLoan: null,
       showLoanDialog: false,
+      loanSearch: '',
       welcomeTimer: null,
       profile: {
         firstName: "", lastName: "", email: "",
@@ -36,12 +37,28 @@ export default {
     };
   },
   computed: {
-    pendingOwnerLoans()    { return this.ownerLoans.filter(l => l.status === "pending"); },
-    activeOwnerLoans()     { return this.ownerLoans.filter(l => l.status === "active"); },
-    pendingBorrowerLoans() { return this.borrowerLoans.filter(l => l.status === "pending"); },
-    activeBorrowerLoans()  { return this.borrowerLoans.filter(l => l.status === "active"); },
-    rejectedBorrowerLoans(){ return this.borrowerLoans.filter(l => l.status === "rejected"); },
-    completedBorrowerLoans(){ return this.borrowerLoans.filter(l => l.status === "completed"); },
+    filteredOwnerLoans() {
+      const q = this.loanSearch.toLowerCase().trim();
+      if (!q) return this.ownerLoans;
+      return this.ownerLoans.filter(l =>
+        (l.item_title || '').toLowerCase().includes(q) ||
+        (`${l.borrower_first_name} ${l.borrower_last_name}`).toLowerCase().includes(q)
+      );
+    },
+    filteredBorrowerLoans() {
+      const q = this.loanSearch.toLowerCase().trim();
+      if (!q) return this.borrowerLoans;
+      return this.borrowerLoans.filter(l =>
+        (l.item_title || '').toLowerCase().includes(q) ||
+        (`${l.owner_first_name} ${l.owner_last_name}`).toLowerCase().includes(q)
+      );
+    },
+    pendingOwnerLoans()    { return this.filteredOwnerLoans.filter(l => l.status === "pending"); },
+    activeOwnerLoans()     { return this.filteredOwnerLoans.filter(l => l.status === "active"); },
+    pendingBorrowerLoans() { return this.filteredBorrowerLoans.filter(l => l.status === "pending"); },
+    activeBorrowerLoans()  { return this.filteredBorrowerLoans.filter(l => l.status === "active"); },
+    rejectedBorrowerLoans(){ return this.filteredBorrowerLoans.filter(l => l.status === "rejected"); },
+    completedBorrowerLoans(){ return this.filteredBorrowerLoans.filter(l => l.status === "completed"); },
     profileName() {
       return [this.profile.firstName, this.profile.lastName].filter(Boolean).join(" ") || "Din profil";
     },
@@ -233,6 +250,17 @@ export default {
 
           <!-- AFTALER -->
           <template v-if="activeSection === 'aftaler'">
+
+            <div class="loan-search-wrapper">
+              <v-icon class="loan-search-icon" size="18">mdi-magnify</v-icon>
+              <input
+                v-model="loanSearch"
+                class="loan-search-input"
+                type="search"
+                placeholder="Søg efter genstand eller person…"
+              />
+            </div>
+
             <div class="tab-toggle" role="tablist">
               <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'ejer' }" role="tab" @click="activeTab = 'ejer'">Som ejer</button>
               <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'lejer' }" role="tab" @click="activeTab = 'lejer'">Som lejer</button>
@@ -581,6 +609,42 @@ export default {
   font-size: var(--text-h1);
   font-weight: 700;
   color: var(--color-neutral);
+}
+
+/* Loan search */
+.loan-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.loan-search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-secondary) !important;
+  pointer-events: none;
+}
+
+.loan-search-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 var(--space-3) 0 42px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--color-neutral);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.loan-search-input::placeholder {
+  color: var(--color-secondary);
+}
+
+.loan-search-input:focus {
+  border-color: var(--color-primary);
 }
 
 /* Tab toggle */

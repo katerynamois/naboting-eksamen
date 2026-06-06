@@ -1,5 +1,6 @@
 <script>
 import GenstandEditModal from './GenstandEditModal.vue'
+import { getSession } from '@/utils/session.js'
 
 const STATUS_CLASS_MAP = {
     'Tilgængelig': 'status-available',
@@ -115,6 +116,13 @@ export default {
                 status: newStatus
             })
         },
+        requestLoan() {
+            if (!getSession()) {
+                this.$router.push('/login')
+            } else {
+                this.$router.push('/laan/' + this.id)
+            }
+        },
         deleteItem() {
             if (window.confirm('Vil du slette denne genstand?')) {
                 this.$emit('delete-item', this.id)
@@ -196,7 +204,7 @@ export default {
                 v-if="!isOwner"
                 class="loan-button"
                 type="button"
-                @click="$router.push('/laan/' + id)"
+                @click="requestLoan"
             >
                 Lån denne genstand
             </button>

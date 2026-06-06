@@ -42,7 +42,7 @@ export default {
         const userId = getUserId()
         this.items = data
           .filter(item => item.status === 'available')
-          .filter(item => item.owner_id !== userId)
+          .filter(item => userId === null || item.owner_id !== userId)
           .map(item => ({
             id: item.item_id,
             userId: item.owner_id,
@@ -50,7 +50,7 @@ export default {
             category: item.category,
             brand: item.brand,
             status: item.status,
-            images: [item.image_url || 'https://placehold.co/64x64'],
+            images: [getImageUrl(item.image_url)],
             condition: item.item_condition,
             quantity: item.quantity,
             minimumLoanPeriod: item.minimum_loan_period,
