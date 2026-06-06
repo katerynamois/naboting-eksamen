@@ -31,7 +31,13 @@ export default {
     },
   },
   mounted() {
-    this.loadItems()
+    this.loadItems().then(() => {
+      const itemId = Number(this.$route.query.item)
+      if (itemId) {
+        const found = this.items.find(i => i.id === itemId)
+        if (found) this.selectedItem = found
+      }
+    })
   },
   methods: {
     async loadItems() {

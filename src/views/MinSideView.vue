@@ -12,38 +12,45 @@ export default {
       borrowerLoans: [],
       selectedLoan: null,
       showLoanDialog: false,
-      loanSearch: '',
+      itemQuery: '',
+      allItems: [],
+      showResults: false,
     }
   },
   computed: {
-    filteredOwnerLoans() {
-      const q = this.loanSearch.toLowerCase().trim()
-      if (!q) return this.ownerLoans
-      return this.ownerLoans.filter(l =>
-        (l.item_title || '').toLowerCase().includes(q) ||
-        (`${l.borrower_first_name} ${l.borrower_last_name}`).toLowerCase().includes(q)
-      )
-    },
-    filteredBorrowerLoans() {
-      const q = this.loanSearch.toLowerCase().trim()
-      if (!q) return this.borrowerLoans
-      return this.borrowerLoans.filter(l =>
-        (l.item_title || '').toLowerCase().includes(q) ||
-        (`${l.owner_first_name} ${l.owner_last_name}`).toLowerCase().includes(q)
-      )
-    },
     firstName() { return getSession()?.firstName || '' },
-    pendingOwnerLoans()     { return this.filteredOwnerLoans.filter(l => l.status === 'pending') },
-    activeOwnerLoans()      { return this.filteredOwnerLoans.filter(l => l.status === 'active') },
-    pendingBorrowerLoans()  { return this.filteredBorrowerLoans.filter(l => l.status === 'pending') },
-    activeBorrowerLoans()   { return this.filteredBorrowerLoans.filter(l => l.status === 'active') },
-    rejectedBorrowerLoans() { return this.filteredBorrowerLoans.filter(l => l.status === 'rejected') },
-    completedBorrowerLoans(){ return this.filteredBorrowerLoans.filter(l => l.status === 'completed') },
+    pendingOwnerLoans()     { return this.ownerLoans.filter(l => l.status === 'pending') },
+    activeOwnerLoans()      { return this.ownerLoans.filter(l => l.status === 'active') },
+    pendingBorrowerLoans()  { return this.borrowerLoans.filter(l => l.status === 'pending') },
+    activeBorrowerLoans()   { return this.borrowerLoans.filter(l => l.status === 'active') },
+    rejectedBorrowerLoans() { return this.borrowerLoans.filter(l => l.status === 'rejected') },
+    completedBorrowerLoans(){ return this.borrowerLoans.filter(l => l.status === 'completed') },
+    itemResults() {
+      const q = this.itemQuery.toLowerCase().trim()
+      if (!q) return []
+      return this.allItems.filter(i =>
+        (i.title || '').toLowerCase().includes(q) ||
+        (i.category || '').toLowerCase().includes(q) ||
+        (i.brand || '').toLowerCase().includes(q)
+      ).slice(0, 6)
+    },
   },
   mounted() {
     this.fetchLoans()
+    this.fetchAllItems()
   },
   methods: {
+    async fetchAllItems() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/items`)
+        if (res.ok) this.allItems = await res.json()
+      } catch {}
+    },
+    goToItem(item) {
+      this.itemQuery = ''
+      this.showResults = false
+      this.$router.push('/find-genstande?item=' + item.item_id)
+    },
     async fetchLoans() {
       const userId = getUserId()
       if (!userId) return
@@ -85,11 +92,27 @@ export default {
     <div class="search-wrapper">
       <v-icon class="search-icon" size="18">mdi-magnify</v-icon>
       <input
-        v-model="loanSearch"
+        v-model="itemQuery"
         class="search-input"
-        type="search"
-        placeholder="Søg efter genstand eller person…"
+        type="text"
+        placeholder="Søg efter genstand…"
+        @focus="showResults = true"
+        @blur="setTimeout(() => showResults = false, 150)"
       />
+      <div v-if="showResults && itemResults.length" class="search-results">
+        <button
+          v-for="item in itemResults"
+          :key="item.item_id"
+          class="search-result"
+          @mousedown.prevent="goToItem(item)"
+        >
+          <span class="result-title">{{ item.title }}</span>
+          <span class="result-meta">{{ item.category }}</span>
+        </button>
+      </div>
+      <p v-if="showResults && itemQuery.length > 1 && itemResults.length === 0" class="search-no-results">
+        Ingen genstande fundet
+      </p>
     </div>
 
     <div class="tab-toggle" role="tablist">
@@ -287,6 +310,63 @@ export default {
 
 .search-input::placeholder { color: var(--color-secondary); }
 .search-input:focus { border-color: var(--color-primary); }
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.search-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px var(--space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: var(--color-bg); }
+
+.result-title {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-neutral);
+}
+
+.result-meta {
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+}
+
+.search-no-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 14px var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+  text-align: center;
+  z-index: 50;
+}
 
 .tab-toggle {
   display: grid;
