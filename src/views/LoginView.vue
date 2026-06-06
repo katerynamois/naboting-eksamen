@@ -9,7 +9,7 @@ export default {
     handleLogin(user) {
       localStorage.setItem("nabotingSession", JSON.stringify({ userId: user.user_id, firstName: user.first_name }))
       window.dispatchEvent(new Event("session-changed"))
-      this.$router.push('/profil')
+      this.$router.push('/min-side')
     }
   }
 }

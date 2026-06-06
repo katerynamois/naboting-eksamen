@@ -14,13 +14,7 @@ export default {
   emits: ["go-to-page-one", "go-to-items", "update-profile"],
   data() {
     return {
-      activeTab: "ejer",
-      activeSection: "aftaler",
-      ownerLoans: [],
-      borrowerLoans: [],
-      selectedLoan: null,
-      showLoanDialog: false,
-      loanSearch: '',
+      activeSection: "konto",
       welcomeTimer: null,
       profile: {
         firstName: "", lastName: "", email: "",
@@ -37,28 +31,6 @@ export default {
     };
   },
   computed: {
-    filteredOwnerLoans() {
-      const q = this.loanSearch.toLowerCase().trim();
-      if (!q) return this.ownerLoans;
-      return this.ownerLoans.filter(l =>
-        (l.item_title || '').toLowerCase().includes(q) ||
-        (`${l.borrower_first_name} ${l.borrower_last_name}`).toLowerCase().includes(q)
-      );
-    },
-    filteredBorrowerLoans() {
-      const q = this.loanSearch.toLowerCase().trim();
-      if (!q) return this.borrowerLoans;
-      return this.borrowerLoans.filter(l =>
-        (l.item_title || '').toLowerCase().includes(q) ||
-        (`${l.owner_first_name} ${l.owner_last_name}`).toLowerCase().includes(q)
-      );
-    },
-    pendingOwnerLoans()    { return this.filteredOwnerLoans.filter(l => l.status === "pending"); },
-    activeOwnerLoans()     { return this.filteredOwnerLoans.filter(l => l.status === "active"); },
-    pendingBorrowerLoans() { return this.filteredBorrowerLoans.filter(l => l.status === "pending"); },
-    activeBorrowerLoans()  { return this.filteredBorrowerLoans.filter(l => l.status === "active"); },
-    rejectedBorrowerLoans(){ return this.filteredBorrowerLoans.filter(l => l.status === "rejected"); },
-    completedBorrowerLoans(){ return this.filteredBorrowerLoans.filter(l => l.status === "completed"); },
     profileName() {
       return [this.profile.firstName, this.profile.lastName].filter(Boolean).join(" ") || "Din profil";
     },
@@ -68,19 +40,6 @@ export default {
     isValidDanishPhone(v)     { return /^(\+45)?\d{8}$/.test(v.replace(/\s/g, "")); },
     isValidDanishPostalCode(v){ return /^\d{4}$/.test(v.trim()); },
     isValidCity(v)            { return /^[A-Za-zÆØÅæøå .'-]{2,}$/.test(v.trim()); },
-
-    async fetchLoans() {
-      const userId = getUserId();
-      if (!userId) return;
-      try {
-        const [ownerRes, borrowerRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/loans/owner/${userId}`),
-          fetch(`${API_BASE_URL}/loans/borrower/${userId}`),
-        ]);
-        if (ownerRes.ok)   this.ownerLoans    = await ownerRes.json();
-        if (borrowerRes.ok) this.borrowerLoans = await borrowerRes.json();
-      } catch {}
-    },
 
     applyProfileData(data) {
       if (!data) return;
@@ -152,24 +111,6 @@ export default {
       this.$emit("update-profile", { ...this.profile });
     },
 
-    openLoan(loan) {
-      this.selectedLoan = loan;
-      this.showLoanDialog = true;
-    },
-    async updateLoanStatus(loan, newStatus) {
-      try {
-        const res = await fetch(`${API_BASE_URL}/loans/${loan.loan_id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...loan, status: newStatus }),
-        });
-        if (res.ok) {
-          await this.fetchLoans();
-          this.showLoanDialog = false;
-        }
-      } catch {}
-    },
-
     showTemporaryWelcome() {
       window.clearTimeout(this.welcomeTimer);
       this.showWelcomeSnackbar = true;
@@ -178,7 +119,6 @@ export default {
 
   mounted() {
     this.applyProfileData(this.profileData);
-    this.fetchLoans();
     if (this.welcomeRequest > 0) this.showTemporaryWelcome();
   },
   beforeUnmount() {
@@ -186,7 +126,6 @@ export default {
   },
   watch: {
     editRequest(n, o)    { if (n !== o) this.openKonto(); },
-    viewRequest(n, o)    { if (n !== o) this.activeSection = "aftaler"; },
     welcomeRequest(n, o) { if (n !== o) this.showTemporaryWelcome(); },
     profileData: { handler(v) { this.applyProfileData(v); }, deep: true },
   },
@@ -225,7 +164,7 @@ export default {
               <v-icon class="nav-icon">mdi-account-outline</v-icon>
               Konto
             </button>
-            <button class="sidebar-nav-item" :class="{ 'sidebar-nav-item--active': activeSection === 'aftaler' }" type="button" @click="activeSection = 'aftaler'; fetchLoans()">
+            <button class="sidebar-nav-item" type="button" @click="$router.push('/min-side')">
               <v-icon class="nav-icon">mdi-swap-vertical</v-icon>
               Aftaler
             </button>
@@ -248,127 +187,8 @@ export default {
         <!-- ── Right main content ── -->
         <main class="profile-main">
 
-          <!-- AFTALER -->
-          <template v-if="activeSection === 'aftaler'">
-
-            <div class="loan-search-wrapper">
-              <v-icon class="loan-search-icon" size="18">mdi-magnify</v-icon>
-              <input
-                v-model="loanSearch"
-                class="loan-search-input"
-                type="search"
-                placeholder="Søg efter genstand eller person…"
-              />
-            </div>
-
-            <div class="tab-toggle" role="tablist">
-              <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'ejer' }" role="tab" @click="activeTab = 'ejer'">Som ejer</button>
-              <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'lejer' }" role="tab" @click="activeTab = 'lejer'">Som lejer</button>
-            </div>
-
-            <template v-if="activeTab === 'ejer'">
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Nye anmodninger</h2>
-                  <RouterLink v-if="pendingOwnerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <p v-if="pendingOwnerLoans.length === 0" class="dashboard-empty">Ingen nye anmodninger</p>
-                <article v-for="loan in pendingOwnerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <span class="dashboard-card-name">{{ loan.borrower_first_name }} {{ loan.borrower_last_name }}</span>
-                  <span class="dashboard-card-meta">{{ loan.item_title }}</span>
-                </article>
-              </div>
-
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Kommende aftaler</h2>
-                  <RouterLink v-if="activeOwnerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <p v-if="activeOwnerLoans.length === 0" class="dashboard-empty">Ingen kommende aftaler</p>
-                <article v-for="loan in activeOwnerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <span class="dashboard-card-name">{{ loan.item_title }}</span>
-                  <span class="dashboard-card-meta">{{ loan.borrower_first_name }} · {{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : '' }}</span>
-                </article>
-              </div>
-
-            </template>
-
-            <template v-else>
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Afventer svar</h2>
-                  <RouterLink v-if="pendingBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <p v-if="pendingBorrowerLoans.length === 0" class="dashboard-empty">Ingen afventende anmodninger</p>
-                <article v-for="loan in pendingBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <div class="dashboard-card-info">
-                    <span class="dashboard-card-name">{{ loan.item_title }}</span>
-                    <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
-                  </div>
-                  <span class="loan-badge loan-badge--pending">Afventer</span>
-                </article>
-              </div>
-
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Godkendte lån</h2>
-                  <RouterLink v-if="activeBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <p v-if="activeBorrowerLoans.length === 0" class="dashboard-empty">Ingen godkendte lån</p>
-                <article v-for="loan in activeBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <div class="dashboard-card-info">
-                    <span class="dashboard-card-name">{{ loan.item_title }}</span>
-                    <span class="dashboard-card-meta">{{ loan.start_date ? new Date(loan.start_date).toLocaleDateString('da-DK') : 'Ingen dato' }}</span>
-                  </div>
-                  <span class="loan-badge loan-badge--active">Godkendt</span>
-                </article>
-              </div>
-
-              <div class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Afviste anmodninger</h2>
-                  <RouterLink v-if="rejectedBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <p v-if="rejectedBorrowerLoans.length === 0" class="dashboard-empty">Ingen afviste anmodninger</p>
-                <article v-for="loan in rejectedBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <div class="dashboard-card-info">
-                    <span class="dashboard-card-name">{{ loan.item_title }}</span>
-                    <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
-                  </div>
-                  <span class="loan-badge loan-badge--rejected">Afvist</span>
-                </article>
-              </div>
-
-              <div v-if="completedBorrowerLoans.length" class="dashboard-section">
-                <div class="dashboard-section-header">
-                  <h2 class="dashboard-section-title">Afsluttede lån</h2>
-                  <RouterLink v-if="completedBorrowerLoans.length > 3" to="/indbakke" class="see-all-link">
-                    Se alle <v-icon size="14">mdi-chevron-right</v-icon>
-                  </RouterLink>
-                </div>
-                <article v-for="loan in completedBorrowerLoans.slice(0, 3)" :key="loan.loan_id" class="dashboard-card dashboard-card--clickable" @click="openLoan(loan)">
-                  <div class="dashboard-card-info">
-                    <span class="dashboard-card-name">{{ loan.item_title }}</span>
-                    <span class="dashboard-card-meta">{{ loan.owner_first_name }} {{ loan.owner_last_name }}</span>
-                  </div>
-                  <span class="loan-badge loan-badge--completed">Afsluttet</span>
-                </article>
-              </div>
-            </template>
-          </template>
-
           <!-- KONTO -->
-          <template v-else-if="activeSection === 'konto'">
+          <template v-if="activeSection === 'konto'">
             <h2 class="section-heading">Konto</h2>
 
             <p v-if="profileMessage" class="profile-message">{{ profileMessage }}</p>
@@ -402,52 +222,6 @@ export default {
       </div>
 
     </v-container>
-
-    <!-- Lån-dialog -->
-    <v-dialog v-model="showLoanDialog" max-width="400" rounded="lg">
-      <div v-if="selectedLoan" class="loan-dialog">
-
-        <div class="loan-dialog-header">
-          <p class="loan-dialog-category">{{ selectedLoan.status === 'pending' ? 'Ny anmodning' : 'Aktiv aftale' }}</p>
-          <h2 class="loan-dialog-title">{{ selectedLoan.item_title }}</h2>
-        </div>
-
-        <div class="loan-dialog-body">
-          <div v-if="selectedLoan.borrower_first_name" class="loan-dialog-row">
-            <span class="loan-dialog-label">Låner</span>
-            <span class="loan-dialog-value">{{ selectedLoan.borrower_first_name }} {{ selectedLoan.borrower_last_name }}</span>
-          </div>
-          <div v-if="selectedLoan.owner_first_name" class="loan-dialog-row">
-            <span class="loan-dialog-label">Ejer</span>
-            <span class="loan-dialog-value">{{ selectedLoan.owner_first_name }} {{ selectedLoan.owner_last_name }}</span>
-          </div>
-          <div v-if="selectedLoan.start_date" class="loan-dialog-row">
-            <span class="loan-dialog-label">Fra</span>
-            <span class="loan-dialog-value">{{ new Date(selectedLoan.start_date).toLocaleDateString('da-DK') }}</span>
-          </div>
-          <div v-if="selectedLoan.end_date" class="loan-dialog-row">
-            <span class="loan-dialog-label">Til</span>
-            <span class="loan-dialog-value">{{ new Date(selectedLoan.end_date).toLocaleDateString('da-DK') }}</span>
-          </div>
-          <div v-if="selectedLoan.message" class="loan-dialog-row loan-dialog-row--message">
-            <span class="loan-dialog-label">Besked</span>
-            <span class="loan-dialog-value">{{ selectedLoan.message }}</span>
-          </div>
-        </div>
-
-        <div class="loan-dialog-actions">
-          <template v-if="selectedLoan.status === 'pending'">
-            <button class="loan-btn loan-btn--reject" @click="updateLoanStatus(selectedLoan, 'rejected')">Afvis</button>
-            <button class="loan-btn loan-btn--approve" @click="updateLoanStatus(selectedLoan, 'active')">Godkend</button>
-          </template>
-          <template v-else-if="selectedLoan.status === 'active'">
-            <button class="loan-btn loan-btn--approve" @click="updateLoanStatus(selectedLoan, 'completed')">Afslut lån</button>
-          </template>
-          <button class="loan-btn loan-btn--close" @click="showLoanDialog = false">Luk</button>
-        </div>
-
-      </div>
-    </v-dialog>
 
   </div>
 </template>

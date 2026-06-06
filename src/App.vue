@@ -39,6 +39,7 @@ export default {
       localStorage.setItem("nabotingSession", JSON.stringify({ userId: user.user_id, firstName: user.first_name }))
       this.loggedIn = true
       this.showLogin = false
+      this.$router.push('/min-side')
     },
     logout() {
       this.showLogin = false
@@ -66,8 +67,8 @@ export default {
     <v-navigation-drawer v-model="drawer" location="right" temporary width="280">
       <nav class="drawer-nav">
         <template v-if="loggedIn">
-          <RouterLink class="drawer-item" to="/profil" @click="drawer = false">Min profil</RouterLink>
           <RouterLink class="drawer-item" to="/min-side" @click="drawer = false">Min side</RouterLink>
+          <RouterLink class="drawer-item" to="/profil" @click="drawer = false">Min profil</RouterLink>
           <RouterLink class="drawer-item" to="/find-genstande" @click="drawer = false">Find genstande</RouterLink>
           <RouterLink class="drawer-item" to="/opret-genstand" @click="drawer = false">Opret genstand</RouterLink>
           <RouterLink class="drawer-item" to="/genstande" @click="drawer = false">Mine genstande</RouterLink>
