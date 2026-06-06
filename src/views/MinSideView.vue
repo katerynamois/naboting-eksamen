@@ -19,6 +19,9 @@ export default {
   },
   computed: {
     firstName() { return getSession()?.firstName || '' },
+    totalItems() { return this.allItems.length },
+    totalCategories() { return new Set(this.allItems.map(i => i.category).filter(Boolean)).size },
+    totalOwners() { return new Set(this.allItems.map(i => i.owner_id).filter(Boolean)).size },
     pendingOwnerLoans()     { return this.ownerLoans.filter(l => l.status === 'pending') },
     activeOwnerLoans()      { return this.ownerLoans.filter(l => l.status === 'active') },
     pendingBorrowerLoans()  { return this.borrowerLoans.filter(l => l.status === 'pending') },
@@ -90,37 +93,58 @@ export default {
 <template>
   <main class="minside-page">
 
-    <h1 class="minside-title">{{ firstName }}</h1>
+    <div class="hero">
+      <h1 class="hero-title">Hej, {{ firstName }} 👋</h1>
+      <p class="hero-sub">Find en genstand hos dine naboer</p>
+
+      <div class="hero-search-wrapper">
+        <v-icon class="hero-search-icon" size="18">mdi-magnify</v-icon>
+        <input
+          id="item-search"
+          v-model="itemQuery"
+          class="hero-search-input"
+          type="text"
+          placeholder="Søg efter genstand…"
+          @focus="showResults = true"
+          @blur="hideResults"
+        />
+        <div v-if="showResults && itemResults.length" class="search-results">
+          <button
+            v-for="item in itemResults"
+            :key="item.item_id"
+            class="search-result"
+            @mousedown.prevent="goToItem(item)"
+          >
+            <span class="result-title">{{ item.title }}</span>
+            <span class="result-meta">{{ item.category }}</span>
+          </button>
+        </div>
+        <p v-if="showResults && itemQuery.length > 1 && itemResults.length === 0" class="search-no-results">
+          Ingen genstande fundet
+        </p>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-number">{{ totalItems }}</span>
+          <span class="hero-stat-label">genstande</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-number">{{ totalOwners }}</span>
+          <span class="hero-stat-label">naboer</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-number">{{ totalCategories }}</span>
+          <span class="hero-stat-label">kategorier</span>
+        </div>
+      </div>
+    </div>
 
     <div v-if="pendingOwnerLoans.length > 0" class="notify-bar" @click="activeTab = 'ejer'">
       <v-icon size="18" color="white">mdi-bell</v-icon>
       <span>{{ pendingOwnerLoans.length }} {{ pendingOwnerLoans.length === 1 ? 'ny låneforespørgsel' : 'nye låneforespørgsler' }} venter</span>
-    </div>
-
-    <div class="search-wrapper">
-      <v-icon class="search-icon" size="18">mdi-magnify</v-icon>
-      <input
-        v-model="itemQuery"
-        class="search-input"
-        type="text"
-        placeholder="Søg efter genstand…"
-        @focus="showResults = true"
-        @blur="hideResults"
-      />
-      <div v-if="showResults && itemResults.length" class="search-results">
-        <button
-          v-for="item in itemResults"
-          :key="item.item_id"
-          class="search-result"
-          @mousedown.prevent="goToItem(item)"
-        >
-          <span class="result-title">{{ item.title }}</span>
-          <span class="result-meta">{{ item.category }}</span>
-        </button>
-      </div>
-      <p v-if="showResults && itemQuery.length > 1 && itemResults.length === 0" class="search-no-results">
-        Ingen genstande fundet
-      </p>
     </div>
 
     <div class="tab-toggle" role="tablist">
@@ -271,6 +295,115 @@ export default {
 </template>
 
 <style scoped>
+.hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.hero-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.hero-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-secondary) !important;
+  pointer-events: none;
+}
+
+.hero-search-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space-3) 0 38px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--color-neutral);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.hero-search-input:focus { border-color: var(--color-primary); }
+.hero-search-input::placeholder { color: var(--color-secondary); }
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+  margin: 0 5px 5px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-stat-number {
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.hero-stat-label {
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  color: var(--color-secondary);
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--color-border);
+}
+
+.notify-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 12px var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .minside-page {
   background: var(--color-bg);
   min-height: 100vh;

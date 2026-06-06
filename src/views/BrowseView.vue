@@ -57,7 +57,7 @@ export default {
         } catch {}
       }
       if (found) {
-        found._isOwner = found.userId === userId
+        found._isOwner = found.userId === getUserId()
         this.selectedItem = found
       }
     })
