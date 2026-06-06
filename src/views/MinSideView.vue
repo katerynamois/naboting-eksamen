@@ -46,6 +46,9 @@ export default {
         if (res.ok) this.allItems = await res.json()
       } catch {}
     },
+    hideResults() {
+      setTimeout(() => { this.showResults = false }, 150)
+    },
     goToItem(item) {
       this.itemQuery = ''
       this.showResults = false
@@ -89,6 +92,11 @@ export default {
 
     <h1 class="minside-title">{{ firstName }}</h1>
 
+    <div v-if="pendingOwnerLoans.length > 0" class="notify-bar" @click="activeTab = 'ejer'">
+      <v-icon size="18" color="white">mdi-bell</v-icon>
+      <span>{{ pendingOwnerLoans.length }} {{ pendingOwnerLoans.length === 1 ? 'ny låneforespørgsel' : 'nye låneforespørgsler' }} venter</span>
+    </div>
+
     <div class="search-wrapper">
       <v-icon class="search-icon" size="18">mdi-magnify</v-icon>
       <input
@@ -97,7 +105,7 @@ export default {
         type="text"
         placeholder="Søg efter genstand…"
         @focus="showResults = true"
-        @blur="setTimeout(() => showResults = false, 150)"
+        @blur="hideResults"
       />
       <div v-if="showResults && itemResults.length" class="search-results">
         <button
@@ -279,6 +287,20 @@ export default {
   color: var(--color-neutral);
   text-align: center;
   margin: 0;
+}
+
+.notify-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 12px var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .search-wrapper {

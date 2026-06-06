@@ -81,7 +81,10 @@ export default {
       <nav class="drawer-nav">
         <template v-if="loggedIn">
           <RouterLink class="drawer-item" to="/find-genstande" @click="drawer = false">Find genstande</RouterLink>
-          <RouterLink class="drawer-item" to="/min-side" @click="drawer = false">Min side</RouterLink>
+          <RouterLink class="drawer-item drawer-item--notify" to="/min-side" @click="drawer = false">
+            Min side
+            <span v-if="pendingCount > 0" class="drawer-badge">{{ pendingCount }}</span>
+          </RouterLink>
           <RouterLink class="drawer-item" to="/profil" @click="drawer = false">Min profil</RouterLink>
           <RouterLink class="drawer-item" to="/opret-genstand" @click="drawer = false">Opret genstand</RouterLink>
           <RouterLink class="drawer-item" to="/genstande" @click="drawer = false">Mine genstande</RouterLink>
@@ -206,6 +209,26 @@ export default {
 
 .drawer-item--btn {
   color: #c0392b;
+}
+
+.drawer-item--notify {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-badge {
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
 }
 
 .drawer-item--muted {

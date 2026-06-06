@@ -14,7 +14,8 @@
       "Bash(\"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -u root -p\"\" -e \"SHOW DATABASES;\")",
       "Bash(\"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -u root --password=\"\" -e \"SELECT 1;\")",
       "Bash(net stop *)",
-      "Bash(curl -s http://localhost:3002/api/loans/owner/2)"
+      "Bash(curl -s http://localhost:3002/api/loans/owner/2)",
+      "Bash(curl -s http://localhost:3002/api/loans/owner/1)"
     ]
   }
 }

@@ -31,11 +31,34 @@ export default {
     },
   },
   mounted() {
-    this.loadItems().then(() => {
+    this.loadItems().then(async () => {
       const itemId = Number(this.$route.query.item)
-      if (itemId) {
-        const found = this.items.find(i => i.id === itemId)
-        if (found) this.selectedItem = found
+      if (!itemId) return
+      let found = this.items.find(i => i.id === itemId)
+      if (!found) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/items/${itemId}`)
+          if (res.ok) {
+            const item = await res.json()
+            found = {
+              id: item.item_id,
+              userId: item.owner_id,
+              title: item.title,
+              category: item.category,
+              brand: item.brand,
+              status: item.status,
+              images: [getImageUrl(item.image_url)],
+              condition: item.item_condition,
+              quantity: item.quantity,
+              minimumLoanPeriod: item.minimum_loan_period,
+              accessories: item.accessories || [],
+            }
+          }
+        } catch {}
+      }
+      if (found) {
+        found._isOwner = found.userId === userId
+        this.selectedItem = found
       }
     })
   },
@@ -65,7 +88,9 @@ export default {
       } catch {}
     },
     selectItem(id) {
-      this.selectedItem = this.items.find(i => i.id === id)
+      const item = this.items.find(i => i.id === id)
+      if (item) item._isOwner = false
+      this.selectedItem = item
     },
   },
 }
@@ -86,7 +111,7 @@ export default {
       :minimumLoanPeriod="selectedItem.minimumLoanPeriod"
       :quantity="selectedItem.quantity"
       :accessories="selectedItem.accessories"
-      :is-owner="false"
+      :is-owner="selectedItem._isOwner || false"
       @gåTilbage="selectedItem = null"
     />
 
