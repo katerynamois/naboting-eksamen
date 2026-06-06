@@ -73,7 +73,6 @@ export default {
       <v-spacer />
       <button class="naboting-menu-btn" @click="drawer = true" aria-label="Menu">
         <v-icon color="white">mdi-menu</v-icon>
-        <span v-if="loggedIn && pendingCount > 0" class="menu-badge">{{ pendingCount > 9 ? '9+' : pendingCount }}</span>
       </button>
     </v-app-bar>
 
@@ -165,20 +164,12 @@ export default {
 
 .menu-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
   background: var(--color-accent);
-  color: #ffffff;
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 700;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   pointer-events: none;
 }
 

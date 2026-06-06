@@ -15,6 +15,8 @@ export default {
       itemQuery: '',
       allItems: [],
       showResults: false,
+      showNotify: true,
+      showNotifyBorrower: true,
     }
   },
   computed: {
@@ -50,7 +52,7 @@ export default {
       } catch {}
     },
     hideResults() {
-      setTimeout(() => { this.showResults = false }, 150)
+      setTimeout(() => { this.showResults = false }, 250)
     },
     goToItem(item) {
       this.itemQuery = ''
@@ -95,7 +97,6 @@ export default {
 
     <div class="hero">
       <h1 class="hero-title">Hej, {{ firstName }} 👋</h1>
-      <p class="hero-sub">Find en genstand hos dine naboer</p>
 
       <div class="hero-search-wrapper">
         <v-icon class="hero-search-icon" size="18">mdi-magnify</v-icon>
@@ -142,9 +143,16 @@ export default {
       </div>
     </div>
 
-    <div v-if="pendingOwnerLoans.length > 0" class="notify-bar" @click="activeTab = 'ejer'">
+    <div v-if="pendingOwnerLoans.length > 0 && showNotify" class="notify-bar" @click="activeTab = 'ejer'">
       <v-icon size="18" color="white">mdi-bell</v-icon>
       <span>{{ pendingOwnerLoans.length }} {{ pendingOwnerLoans.length === 1 ? 'ny låneforespørgsel' : 'nye låneforespørgsler' }} venter</span>
+      <button class="notify-close" @click.stop="showNotify = false">✕</button>
+    </div>
+
+    <div v-if="activeBorrowerLoans.length > 0 && showNotifyBorrower" class="notify-bar notify-bar--approved" @click="activeTab = 'lejer'">
+      <v-icon size="18" color="white">mdi-check-circle-outline</v-icon>
+      <span>{{ activeBorrowerLoans.length }} {{ activeBorrowerLoans.length === 1 ? 'lån er godkendt' : 'lån er godkendt' }}</span>
+      <button class="notify-close" @click.stop="showNotifyBorrower = false">✕</button>
     </div>
 
     <div class="tab-toggle" role="tablist">
@@ -360,8 +368,6 @@ export default {
   gap: var(--space-4);
   padding-top: var(--space-2);
   margin: 0 5px 5px;
-  position: relative;
-  z-index: 1;
 }
 
 .hero-stat {
@@ -394,7 +400,7 @@ export default {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #ffffff;
   border-radius: var(--radius-lg);
   padding: 12px var(--space-4);
@@ -426,7 +432,7 @@ export default {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #ffffff;
   border-radius: var(--radius-lg);
   padding: 12px var(--space-4);
@@ -435,6 +441,23 @@ export default {
   font-weight: 600;
   cursor: pointer;
 }
+
+.notify-bar--approved {
+  background: #c8714a;
+}
+
+.notify-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 0 0 var(--space-2);
+  opacity: 0.8;
+}
+
+.notify-close:hover { opacity: 1; }
 
 .search-wrapper {
   position: relative;
