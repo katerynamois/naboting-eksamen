@@ -56,7 +56,7 @@ export default {
   <v-app>
 
     <v-app-bar flat class="naboting-bar">
-      <RouterLink to="/" class="naboting-logo">NABOTING</RouterLink>
+      <RouterLink :to="loggedIn ? '/min-side' : '/'" class="naboting-logo">NABOTING</RouterLink>
       <v-spacer />
       <RouterLink to="/find-genstande" class="naboting-browse-link">Find genstande</RouterLink>
       <v-btn icon variant="text" class="naboting-menu-icon" @click="drawer = true">
