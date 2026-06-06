@@ -67,6 +67,7 @@ export default {
       <nav class="drawer-nav">
         <template v-if="loggedIn">
           <RouterLink class="drawer-item" to="/profil" @click="drawer = false">Min profil</RouterLink>
+          <RouterLink class="drawer-item" to="/min-side" @click="drawer = false">Min side</RouterLink>
           <RouterLink class="drawer-item" to="/find-genstande" @click="drawer = false">Find genstande</RouterLink>
           <RouterLink class="drawer-item" to="/opret-genstand" @click="drawer = false">Opret genstand</RouterLink>
           <RouterLink class="drawer-item" to="/genstande" @click="drawer = false">Mine genstande</RouterLink>

@@ -12,6 +12,7 @@ const routes = [
   { path: '/find-genstande', component: () => import('../views/BrowseView.vue') },
   { path: '/laan/:itemId', component: () => import('../views/LoanRequestView.vue'), meta: { requiresAuth: true } },
   { path: '/indbakke', component: () => import('../views/LoanInboxView.vue'), meta: { requiresAuth: true } },
+  { path: '/min-side', component: () => import('../views/MinSideView.vue'), meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
