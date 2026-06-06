@@ -1,5 +1,5 @@
 <script>
-import { getUserId } from '@/utils/session.js'
+import { getUserId, getSession } from '@/utils/session.js'
 
 const API_BASE_URL = 'http://localhost:3002/api'
 
@@ -32,6 +32,7 @@ export default {
         (`${l.owner_first_name} ${l.owner_last_name}`).toLowerCase().includes(q)
       )
     },
+    firstName() { return getSession()?.firstName || '' },
     pendingOwnerLoans()     { return this.filteredOwnerLoans.filter(l => l.status === 'pending') },
     activeOwnerLoans()      { return this.filteredOwnerLoans.filter(l => l.status === 'active') },
     pendingBorrowerLoans()  { return this.filteredBorrowerLoans.filter(l => l.status === 'pending') },
@@ -79,7 +80,7 @@ export default {
 <template>
   <main class="minside-page">
 
-    <h1 class="minside-title">Min side</h1>
+    <h1 class="minside-title">{{ firstName }}</h1>
 
     <div class="search-wrapper">
       <v-icon class="search-icon" size="18">mdi-magnify</v-icon>
@@ -251,7 +252,7 @@ export default {
 .minside-title {
   font-family: var(--font-display);
   font-size: var(--text-h1);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-neutral);
   text-align: center;
   margin: 0;

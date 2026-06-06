@@ -10,10 +10,11 @@ export default {
       drawer: false,
       showLogin: false,
       loggedIn: false,
+      pendingCount: 0,
     }
   },
   mounted() {
-    this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
+    this.refreshSession()
     window.addEventListener("session-changed", this.refreshSession)
   },
   beforeUnmount() {
@@ -33,12 +34,24 @@ export default {
       this.showLogin = false
     },
     refreshSession() {
-      this.loggedIn = Boolean(localStorage.getItem("nabotingSession"))
+      const session = localStorage.getItem("nabotingSession")
+      this.loggedIn = Boolean(session)
+      if (session) this.fetchPendingCount(JSON.parse(session).userId)
+      else this.pendingCount = 0
+    },
+    async fetchPendingCount(userId) {
+      try {
+        const res = await fetch(`http://localhost:3002/api/loans/owner/${userId}`)
+        if (!res.ok) return
+        const loans = await res.json()
+        this.pendingCount = loans.filter(l => l.status === 'pending').length
+      } catch {}
     },
     handleLogin(user) {
       localStorage.setItem("nabotingSession", JSON.stringify({ userId: user.user_id, firstName: user.first_name }))
       this.loggedIn = true
       this.showLogin = false
+      this.fetchPendingCount(user.user_id)
       this.$router.push('/min-side')
     },
     logout() {
@@ -58,18 +71,18 @@ export default {
     <v-app-bar flat class="naboting-bar">
       <RouterLink :to="loggedIn ? '/min-side' : '/'" class="naboting-logo">NABOTING</RouterLink>
       <v-spacer />
-      <RouterLink to="/find-genstande" class="naboting-browse-link">Find genstande</RouterLink>
-      <v-btn icon variant="text" class="naboting-menu-icon" @click="drawer = true">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+      <button class="naboting-menu-btn" @click="drawer = true" aria-label="Menu">
+        <v-icon color="white">mdi-menu</v-icon>
+        <span v-if="loggedIn && pendingCount > 0" class="menu-badge">{{ pendingCount > 9 ? '9+' : pendingCount }}</span>
+      </button>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" location="right" temporary width="280">
       <nav class="drawer-nav">
         <template v-if="loggedIn">
+          <RouterLink class="drawer-item" to="/find-genstande" @click="drawer = false">Find genstande</RouterLink>
           <RouterLink class="drawer-item" to="/min-side" @click="drawer = false">Min side</RouterLink>
           <RouterLink class="drawer-item" to="/profil" @click="drawer = false">Min profil</RouterLink>
-          <RouterLink class="drawer-item" to="/find-genstande" @click="drawer = false">Find genstande</RouterLink>
           <RouterLink class="drawer-item" to="/opret-genstand" @click="drawer = false">Opret genstand</RouterLink>
           <RouterLink class="drawer-item" to="/genstande" @click="drawer = false">Mine genstande</RouterLink>
           <RouterLink class="drawer-item" to="/indbakke" @click="drawer = false">Indbakke</RouterLink>
@@ -136,10 +149,34 @@ export default {
   white-space: nowrap;
 }
 
-.naboting-menu-icon {
-  color: var(--color-surface) !important;
-  background: transparent !important;
-  box-shadow: none !important;
+.naboting-menu-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  pointer-events: none;
 }
 
 .drawer-nav {

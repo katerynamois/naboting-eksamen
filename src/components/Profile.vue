@@ -14,7 +14,7 @@ export default {
   emits: ["go-to-page-one", "go-to-items", "update-profile"],
   data() {
     return {
-      activeSection: "konto",
+      activeSection: "oversigt",
       welcomeTimer: null,
       profile: {
         firstName: "", lastName: "", email: "",
@@ -109,6 +109,7 @@ export default {
       this.profileMessage = this.profileDraft.newPassword ? "Profil og adgangskode er gemt." : "Profilen er gemt.";
       this.profileError = "";
       this.$emit("update-profile", { ...this.profile });
+      this.activeSection = "oversigt";
     },
 
     showTemporaryWelcome() {
@@ -187,8 +188,36 @@ export default {
         <!-- ── Right main content ── -->
         <main class="profile-main">
 
+          <!-- OVERSIGT -->
+          <template v-if="activeSection === 'oversigt'">
+            <h2 class="section-heading">Min profil</h2>
+            <div class="profile-overview">
+              <div class="overview-row">
+                <span class="overview-label">Navn</span>
+                <span class="overview-value">{{ profile.firstName }} {{ profile.lastName }}</span>
+              </div>
+              <div class="overview-row">
+                <span class="overview-label">Email</span>
+                <span class="overview-value">{{ profile.email }}</span>
+              </div>
+              <div class="overview-row">
+                <span class="overview-label">Telefon</span>
+                <span class="overview-value">{{ profile.phone || '—' }}</span>
+              </div>
+              <div class="overview-row">
+                <span class="overview-label">Postnummer</span>
+                <span class="overview-value">{{ profile.postalCode || '—' }}</span>
+              </div>
+              <div class="overview-row">
+                <span class="overview-label">By</span>
+                <span class="overview-value">{{ profile.city || '—' }}</span>
+              </div>
+            </div>
+            <button class="edit-profile-start-btn" @click="openKonto">Rediger profil</button>
+          </template>
+
           <!-- KONTO -->
-          <template v-if="activeSection === 'konto'">
+          <template v-else-if="activeSection === 'konto'">
             <h2 class="section-heading">Konto</h2>
 
             <p v-if="profileMessage" class="profile-message">{{ profileMessage }}</p>
@@ -212,7 +241,7 @@ export default {
               <v-text-field v-model="profileDraft.repeatNewPassword"  class="profile-field" type="password" placeholder="Gentag ny adgangskode"   autocomplete="new-password"     variant="solo" density="comfortable" rounded="lg" flat hide-details />
 
               <div class="edit-profile-actions">
-                <v-btn class="edit-profile-button" variant="flat" color="surface" rounded="md" elevation="0" @click="activeSection = 'aftaler'">Annuller</v-btn>
+                <v-btn class="edit-profile-button" variant="flat" color="surface" rounded="md" elevation="0" @click="activeSection = 'oversigt'">Annuller</v-btn>
                 <v-btn class="edit-profile-button" color="primary" rounded="md" elevation="0" @click="saveProfileEdit">Gem</v-btn>
               </div>
             </div>
@@ -630,6 +659,51 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* Profil oversigt */
+.profile-overview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.overview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+}
+
+.overview-row:last-child { border-bottom: none; }
+
+.overview-label {
+  color: var(--color-secondary);
+  font-size: var(--text-label);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.overview-value {
+  color: var(--color-neutral);
+  text-align: right;
+}
+
+.edit-profile-start-btn {
+  width: 100%;
+  min-height: 48px;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* Konto form */

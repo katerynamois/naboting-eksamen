@@ -7,7 +7,13 @@
       "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"DROP TRIGGER IF EXISTS ensure_single_primary_image;\")",
       "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 naboting -e \"SELECT COUNT\\(*\\) as items FROM items; SELECT COUNT\\(*\\) as images FROM item_images; SELECT COUNT\\(*\\) as accessories FROM accessories; SHOW TRIGGERS;\")",
       "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 --default-character-set=utf8 naboting -e \"SELECT item_id, title, brand, category FROM items ORDER BY item_id;\")",
-      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 --default-character-set=utf8 naboting)"
+      "Bash(\"C:/MAMP/bin/mysql/bin/mysql.exe\" -u root -proot -h 127.0.0.1 -P 3306 --default-character-set=utf8 naboting)",
+      "Bash(net start *)",
+      "Bash(findstr -i mysql)",
+      "Bash(\"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -u root -proot -e \"SHOW DATABASES;\")",
+      "Bash(\"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -u root -p\"\" -e \"SHOW DATABASES;\")",
+      "Bash(\"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -u root --password=\"\" -e \"SELECT 1;\")",
+      "Bash(net stop *)"
     ]
   }
 }
