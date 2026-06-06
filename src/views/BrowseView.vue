@@ -17,7 +17,18 @@ export default {
     return {
       items: [],
       selectedItem: null,
+      activeCategory: 'Alle',
     }
+  },
+  computed: {
+    categories() {
+      const cats = this.items.map(i => i.category).filter(Boolean)
+      return ['Alle', ...new Set(cats)]
+    },
+    filteredItems() {
+      if (this.activeCategory === 'Alle') return this.items
+      return this.items.filter(i => i.category === this.activeCategory)
+    },
   },
   mounted() {
     this.loadItems()
@@ -80,11 +91,23 @@ export default {
       </button>
       <h1 class="browse-title">Find genstande</h1>
 
-      <p v-if="items.length === 0" class="browse-empty">Ingen tilgængelige genstande.</p>
+      <div class="filter-bar">
+        <button
+          v-for="cat in categories"
+          :key="cat"
+          class="filter-tab"
+          :class="{ 'filter-tab--active': activeCategory === cat }"
+          @click="activeCategory = cat"
+        >
+          {{ cat }}
+        </button>
+      </div>
+
+      <p v-if="filteredItems.length === 0" class="browse-empty">Ingen tilgængelige genstande.</p>
 
       <div class="browse-list">
         <GenstandCard
-          v-for="item in items"
+          v-for="item in filteredItems"
           :key="item.id"
           :id="item.id"
           :title="item.title"
@@ -139,6 +162,40 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.filter-bar {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
+  scrollbar-width: none;
+}
+
+.filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-tab {
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 6px 16px;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--color-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-tab--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .browse-empty {
