@@ -39,6 +39,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Server error" });
 });
 
-app.listen(port, () => {
-  console.log(`Naboting API runs on http://localhost:${port}`);
-});
+// På Vercel kører app'en som serverless function (api/index.js) og skal ikke lytte selv
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Naboting API runs on http://localhost:${port}`);
+  });
+}
+
+export default app;

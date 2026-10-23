@@ -41,7 +41,7 @@ export default {
     },
     async fetchPendingCount(userId) {
       try {
-        const res = await fetch(`http://localhost:3002/api/loans/owner/${userId}`)
+        const res = await fetch(`/api/loans/owner/${userId}`)
         if (!res.ok) return
         const loans = await res.json()
         this.pendingCount = loans.filter(l => l.status === 'pending').length

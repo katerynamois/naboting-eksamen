@@ -67,6 +67,11 @@ async function saveImageUrl(imageUrl) {
     return imageUrl;
   }
 
+  // Vercel har ingen skrivbar disk, så billedet gemmes direkte i databasen
+  if (process.env.VERCEL) {
+    return imageUrl;
+  }
+
   const match = imageUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
 
   if (!match) {

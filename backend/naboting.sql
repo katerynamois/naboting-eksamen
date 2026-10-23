@@ -104,7 +104,7 @@ INSERT INTO `items` (`item_id`, `owner_id`, `title`, `brand`, `category`, `item_
 CREATE TABLE `item_images` (
   `image_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
-  `image_url` varchar(255) NOT NULL,
+  `image_url` mediumtext NOT NULL,
   `is_primary` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -170,7 +170,7 @@ CREATE TABLE `users` (
   `last_name` varchar(100) DEFAULT NULL,
   `postal_code` varchar(20) DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
-  `profile_image_url` varchar(255) DEFAULT NULL,
+  `profile_image_url` mediumtext DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -298,19 +298,10 @@ COMMIT;
 --   ADD COLUMN `profile_image_url` varchar(255) DEFAULT NULL AFTER `city`;
 
 --
--- Trigger: sikrer at kun ét billede er primært per genstand
+-- Note: En trigger til "kun ét primært billede" virker ikke i MySQL, fordi en
+-- trigger ikke må ændre den tabel, den selv lytter på (fejl 1442).
+-- Reglen håndhæves i stedet i backend-transaktionen (item.model.js).
 --
-
-DELIMITER //
-CREATE TRIGGER `ensure_single_primary_image`
-BEFORE INSERT ON `item_images`
-FOR EACH ROW
-BEGIN
-  IF NEW.is_primary = 1 THEN
-    UPDATE `item_images` SET `is_primary` = 0 WHERE `item_id` = NEW.item_id;
-  END IF;
-END //
-DELIMITER ;
 
 --
 -- Stored procedure: opret lån med tjek af tilgængelighed

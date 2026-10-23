@@ -2,10 +2,10 @@
 import GenstandPage from '@/components/Genstand/GenstandPage.vue'
 import { getUserId } from '@/utils/session.js'
 
-const API_BASE_URL = 'http://localhost:3002/api'
+const API_BASE_URL = '/api'
 
 function getImageUrl(url) {
-  if (url && url.startsWith('/uploads')) return `http://localhost:3002${url}`
+  if (url && url.startsWith('/uploads')) return `${url}`
   return 'https://placehold.co/300x200?text=Ingen+billede'
 }
 

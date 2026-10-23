@@ -46,5 +46,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Lokalt sendes /api og /uploads videre til Express (npm run api)
+    proxy: {
+      '/api': 'http://localhost:3002',
+      '/uploads': 'http://localhost:3002',
+    },
   },
 })
